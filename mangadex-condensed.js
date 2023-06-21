@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      27
+// @version      28
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -194,7 +194,7 @@
 
         /* Remove bolding of the chapter titles. */
         /* Adjust the font size of the title. */
-        #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.75rem !important;}
+        #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
       `;
 
       addGlobalStyle(style);
@@ -208,8 +208,8 @@
         #__nuxt[mdcpage="title"][mdcce="true"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}
 
         /* Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread. */
-        #__nuxt[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.75rem !important;}
-        #__nuxt[mdcpage="title"][mdccf="true"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.75rem !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-link {font-weight: 500 !important; font-size: 0.75rem !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .chapter.read .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
         #__nuxt[mdcpage="title"][mdccf="true"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
 
         /* Adjust line height of unread chapters. */
@@ -228,10 +228,9 @@
         #__nuxt[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: minmax(0,6fr) minmax(0,1fr) minmax(0,1fr) minmax(0,120px) auto auto !important;}
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title groups uploader timestamp views comments" !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title spacer groups uploader views timestamp comments" !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: fit-content(100%) auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
         #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
-        #__nuxt[mdcce="true"] .chapter-grid > [title*="comment"] {min-width: 6ch;}
 
         /* Adjust container margin to be smaller. */
         #__nuxt[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
@@ -241,26 +240,24 @@
         .chapter.read .pill.lift:hover {background-color:var(--md-accent-darken) !important;}
 
         /* Add a lift for comments. */
-        .chapter [title*="comment"]:hover {background-color:var(--md-accent-darken2); border-radius:0.25rem;}
-        .dark .chapter [title*="comment"]:hover {background-color:var(--md-accent-lighten2);}
         .dark .chapter.read [title*="comment"]:hover {background-color:var(--md-accent-lighten);}
         .light .chapter.read [title*="comment"]:hover {background-color:var(--md-accent-darken);}
 
         /* Identify read chapters easier. */
-          /* Darken the background color. */
-          #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}
-          #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}
-          #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}
-          .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
-          .dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
+        /* Darken the background color. */
+        #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}
+        #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}
+        #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}
+        .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
+        .dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
 
-          /* Gray out the chapter name. */
-          .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
-          .dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
+        /* Gray out the chapter name. */
+        .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
+        .dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
 
-          /* Hide. */
-          #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
-          #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
+        /* Hide. */
+        #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
+        #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
       `;
 
       addGlobalStyle(style);
@@ -269,7 +266,7 @@
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageFollows() {
-    const container_selector = '#__layout';
+    const container_selector = '#__nuxt';
     const config_class = 'controls';
 
     function style() {
@@ -397,6 +394,11 @@
               }
             }
 
+            // Remove the alt-text on the flag.
+            // This prevents text overlap on the title when MangaDex isn't loading.
+            const flag = title.firstElementChild;
+            if (flag !== null) flag.alt = '';
+
             // Mark that we've processed this title.
             title.classList.add('condensed-parsed');
           }
@@ -489,7 +491,7 @@
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageTitle() {
-    const container_selector = '#__layout';
+    const container_selector = '#__nuxt';
     const config_class = '.layout-container div.sm\\:ml-2 .flex.mb-6';
     const config_class2 = '.layout-container div.sm\\:ml-2 .flex.mb-2';
 
@@ -594,7 +596,7 @@
   ///////////////////////////////////////////////////////////////////////////////
   // This is our loader.
   //debugger;
-  const pageContentSelector = '#__layout';
+  const pageContentSelector = '#__nuxt';
   const bootstrap_loader = function(mutationsList, observer) {
     console.log('[MDC] Bootstrap loader.');
     observer.disconnect();
@@ -657,6 +659,7 @@
     load_observer.observe(document.body, {attributes: false, childList: true, subtree: false});
 
     // Test for the page already being loaded.  This is a race condition that could break the observer.
+    debugger;
     const content_container = document.querySelector(pageContentSelector);
     if (content_container != null && content_container.hasChildNodes()) {
       console.log('[MDC] Page loaded, jumping to bootstrap.');
