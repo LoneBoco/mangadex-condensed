@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      16
+// @version      17
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -173,7 +173,7 @@
       addGlobalStyle(style);
     }
 
-    // Title.
+    // Title / Group.
     {
       const style = `
         /* Remove the spacing and apply chapter line separators. */
@@ -201,22 +201,24 @@
         /* Alter the grid spacing to give more room for the chapter name. */
         .chapter-grid {grid-template-columns:minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
 
+        /* Adjust container margin to be smaller. */
+        .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
+
         /* Identify read chapters easier. */
+          /* Darken the background color. */
+          #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}
+          #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}
+          #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}
+          .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
+          .dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
 
-        /* Darken the background color. */
-        #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}
-        #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}
-        #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}
-        .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
-        .dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
+          /* Gray out the chapter name. */
+          .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
+          .dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
 
-        /* Gray out the chapter name. */
-        .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
-        .dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
-
-        /* Hide. */
-        #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
-        #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
+          /* Hide. */
+          #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
+          #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
       `;
 
       addGlobalStyle(style);
