@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      15
+// @version      16
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -34,7 +34,7 @@
       'ReadChapterStyle': {
         'label': 'Read Chapter Style',
         'type': 'select',
-        'options': ['Darken Background', 'Lighten Text'],
+        'options': ['Darken Background', 'Lighten Text', 'Hide'],
         'default': 'Darken Background'
       },
       'LeftClickMode': {
@@ -59,11 +59,11 @@
 
   // Adds a style to the <head> tags.
   function addGlobalStyle(css) {
-    var head, style;
-    head = document.getElementsByTagName('head')[0];
+    const head = document.getElementsByTagName('head')[0];
     if (!head) { return; }
-    style = document.createElement('style');
+    const style = document.createElement('style');
     style.type = 'text/css';
+    style.setAttribute('from', 'mdc');
     style.innerHTML = css;
     head.appendChild(style);
   }
@@ -156,52 +156,70 @@
   function addStyles() {
     // Follow.
     {
-      // Thin out the container padding.
-      addGlobalStyle('#__nuxt[mdcpage="follow"] .chapter-feed__container.details {padding: 0.25rem !important;');
+      const style = `
+        /* Thin out the container padding. */
+        #__nuxt[mdcpage="follow"] .chapter-feed__container.details {padding: 0.25rem !important;}
 
-      // Adjust the location of the cover image.
-      addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}');
-      addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}');
-      addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container.details {grid-template-areas: "title title" "divider divider" "art list" !important;}');
+        /* Adjust the location of the cover image. */
+        #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}
+        #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}
+        #__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container.details {grid-template-areas: "title title" "divider divider" "art list" !important;}
 
-      // Remove bolding of the chapter titles.
-      // Adjust the font size of the title.
-      addGlobalStyle('#__nuxt[mdcpage="follow"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}');
+        /* Remove bolding of the chapter titles. */
+        /* Adjust the font size of the title. */
+        #__nuxt[mdcpage="follow"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
+      `;
+
+      addGlobalStyle(style);
     }
 
     // Title.
     {
-      // Remove the spacing and apply chapter line separators.
-      addGlobalStyle('#__nuxt[mdcpage="title"] .flex.flex-col.gap-2 {gap: 0rem !important;}');
-      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}');
+      const style = `
+        /* Remove the spacing and apply chapter line separators. */
+        #__nuxt[mdcpage="title"] .flex.flex-col.gap-2 {gap: 0rem !important;}
+        #__nuxt[mdcpage="title"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}
 
-      // Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread.
-      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.85rem !important;}');
-      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}');
-      addGlobalStyle('#__nuxt[mdcpage="title"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}');
+        /* Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread. */
+        #__nuxt[mdcpage="title"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="title"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="title"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
 
-      // Adjust line height of unread chapters.
-      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}');
+        /* Adjust line height of unread chapters. */
+        #__nuxt[mdcpage="title"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}
+      `;
+
+      addGlobalStyle(style);
     }
 
     // All.
     {
-      // Adjust the font size for the series name.
-      addGlobalStyle('.chapter-feed__title {font-size: 0.85rem !important;}');
+      const style = `
+        /* Adjust the font size for the series name. */
+        .chapter-feed__title {font-size: 0.85rem !important;}
 
-      // Alter the grid spacing to give more room for the chapter name.
-      addGlobalStyle('.chapter-grid {grid-template-columns:minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}');
+        /* Alter the grid spacing to give more room for the chapter name. */
+        .chapter-grid {grid-template-columns:minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
 
-      // Identify read chapters easier.
-      // Darken the background color.
-      addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}');
-      addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}');
-      addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}');
-      addGlobalStyle('.light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}');
-      addGlobalStyle('.dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}');
-      // Gray out the chapter name.
-      addGlobalStyle('.light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}');
-      addGlobalStyle('.dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}');
+        /* Identify read chapters easier. */
+
+        /* Darken the background color. */
+        #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}
+        #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}
+        #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}
+        .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
+        .dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
+
+        /* Gray out the chapter name. */
+        .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
+        .dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
+
+        /* Hide. */
+        #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
+        #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
+      `;
+
+      addGlobalStyle(style);
     }
   }
 
@@ -294,6 +312,11 @@
               cover.addEventListener('mouseleave', hide);
               cover.addEventListener('mouseenter', show);
             }
+
+            // Adding our event listeners might have triggered a weird browser issue where our mouseenter event got triggered twice.
+            // I noticed this happens on Firefox if your mouse is already over a cover image on page load.
+            // Set our count to 0 to allow the hide function to properly clean up.
+            setTimeout(() => { count = 0; }, 0);
 
             // Set up default state (cover hidden).
             if (coverStyle === 'Hidden') {
