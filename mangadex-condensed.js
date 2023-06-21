@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaDex Condensed
 // @namespace    suckerfree
-// @version      3
+// @version      4
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
 // @match        https://mangadex.org/titles/feed
@@ -25,7 +25,7 @@
   }
 
   // Thin out the container padding.
-  addGlobalStyle('.chapter-feed__container {gap: 0.35rem !important; padding: 0.5rem !important; margin-bottom: 0.5rem !important;}');
+  addGlobalStyle('.chapter-feed__container {gap: 0.35rem !important; padding: 0.5rem !important; margin-bottom: 0.5rem !important; grid-template-areas: "title title" "divider divider" "art list" !important;}');
 
   // Remove bolding of the chapter titles.
   addGlobalStyle('.chapter-list__title {font-weight: normal !important;}');
@@ -52,7 +52,7 @@ const apply_js_cb = function(mutationsList, observer) {
 
       // Mouse over title.  Show the cover and move the chapters over to the next column.
       title.addEventListener('mouseenter', e => {
-        cover.style.display = "block";
+        cover.style.display = "grid";
         chapters.style.gridColumn = "span 1 / span 1";
       });
 
