@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      17
+// @version      18
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -557,7 +557,9 @@
   ///////////////////////////////////////////////////////////////////////////////
   // This is our loader.
   //debugger;
+  const pageContentSelector = '#__layout > div:first-child > div:nth-child(2) > div:nth-child(2)';
   const bootstrap_loader = function(mutationsList, observer) {
+    console.log('[MDC] Bootstrap loader.');
     observer.disconnect();
     observer.takeRecords();
 
@@ -586,15 +588,23 @@
       else if (/\/group\//.test(location.pathname))
         pageFunction = pageTitle;
 
-      if (pageFunction !== undefined)
+      if (pageFunction !== undefined) {
+        console.log(`[MDC] Page detected, calling ${pageFunction.name}.`);
         pageFunction();
+      }
 
       observer.observe(content_container, {attributes: false, childList: true, subtree: true});
     };
 
-    const content_container = document.querySelector('#__layout > div:first-child > div:nth-child(2) > div:nth-child(2)');
+    const content_container = document.querySelector(pageContentSelector);
     const content_observer = new MutationObserver(page_transfer_loader);
     content_observer.observe(content_container, {attributes: false, childList: true, subtree: true});
+
+    // Test for the page already being loaded.  This is a race condition that could break the observer.
+    if (content_container.hasChildNodes()) {
+      console.log('[MDC] Page loaded, jumping to page detection.');
+      page_transfer_loader([], content_observer);
+    }
   };
 
   // This is the first bootstrap loader.
@@ -606,5 +616,12 @@
 
     const load_observer = new MutationObserver(bootstrap_loader);
     load_observer.observe(document.body, {attributes: false, childList: true, subtree: false});
+
+    // Test for the page already being loaded.  This is a race condition that could break the observer.
+    const content_container = document.querySelector(pageContentSelector);
+    if (content_container.hasChildNodes()) {
+      console.log('[MDC] Page loaded, jumping to bootstrap.');
+      bootstrap_loader([], load_observer);
+    }
   };
 })();
