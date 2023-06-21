@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaDex Condensed
 // @namespace    suckerfree
-// @version      1.2
+// @version      3
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
 // @match        https://mangadex.org/titles/feed
@@ -24,11 +24,14 @@
     head.appendChild(style);
   }
 
+  // Thin out the container padding.
+  addGlobalStyle('.chapter-feed__container {gap: 0.35rem !important; padding: 0.5rem !important; margin-bottom: 0.5rem !important;}');
+
   // Remove bolding of the chapter titles.
   addGlobalStyle('.chapter-list__title {font-weight: normal !important;}');
 
   // Slightly reduce the font size of the series name.
-  addGlobalStyle('.chapter-feed__title span {font-size: 0.9rem !important;}');
+  addGlobalStyle('.chapter-feed__title span {font-size: 0.85rem !important;}');
 
 })();
 
@@ -43,23 +46,20 @@ const apply_js_cb = function(mutationsList, observer) {
     let chapters = container.getElementsByClassName('chapter-feed__chapters')[0];
 
     if (title && cover && chapters) {
-      container.style.display = "block";
-      container.style.gap = "0.5rem";
-      title.style.paddingBottom = "0.5em";
+      // Set up default state (cover hidden).
       cover.style.display = "none";
-      chapters.style.paddingTop = "0.5em";
+      chapters.style.gridColumn = "span 2 / span 2";
 
+      // Mouse over title.  Show the cover and move the chapters over to the next column.
       title.addEventListener('mouseenter', e => {
-        container.style.display = "grid";
-        title.style.paddingBottom = "0";
         cover.style.display = "block";
-        chapters.style.paddingTop = "0";
+        chapters.style.gridColumn = "span 1 / span 1";
       });
+
+      // Mouse leaves title.  Hide the cover and span the chapters across the whole grid row.
       title.addEventListener('mouseleave', e => {
-        container.style.display = "block";
-        title.style.paddingBottom = "0.5em";
         cover.style.display = "none";
-        chapters.style.paddingTop = "0.5em";
+        chapters.style.gridColumn = "span 2 / span 2";
       });
     }
   }
