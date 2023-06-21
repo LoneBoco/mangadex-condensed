@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      13
+// @version      14
 // @description  Enhance MangaDex with a better Follows page with lots of display options.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -78,18 +78,26 @@
       addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}');
       addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}');
       addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container.details {grid-template-areas: "title title" "divider divider" "art list" !important;}');
+
+      // Remove bolding of the chapter titles.
+      // Adjust the font size of the title.
+      addGlobalStyle('#__nuxt[mdcpage="follow"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}');
     }
 
     // Title.
     {
+      // Remove the spacing and apply chapter line separators.
+      addGlobalStyle('#__nuxt[mdcpage="title"] .flex.flex-col.gap-2 {gap: 0rem !important;}');
+      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}');
+
+      // Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread.
+      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.85rem !important;}');
+      addGlobalStyle('#__nuxt[mdcpage="title"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}');
+      addGlobalStyle('#__nuxt[mdcpage="title"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}');
     }
 
     // All.
     {
-      // Remove bolding of the chapter titles.
-      // Adjust the font size of the title.
-      addGlobalStyle('.chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}');
-
       // Adjust the font size for the series name.
       addGlobalStyle('.chapter-feed__title {font-size: 0.85rem !important;}');
 
@@ -100,6 +108,7 @@
       // Darken the background color.
       addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}');
       addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}');
+      addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:var(--md-accent-darken2) !important;}');
       addGlobalStyle('.light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}');
       addGlobalStyle('.dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}');
       // Gray out the chapter name.
