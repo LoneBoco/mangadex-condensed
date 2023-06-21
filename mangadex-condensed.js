@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      29
+// @version      30
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -288,6 +288,7 @@
     function observer() {
       const apply_js_cb = async function(mutationsList, observer) {
 
+        let loadedOne = false;
         const containers = document.getElementsByClassName('chapter-feed__container');
         for (const container of containers) {
           const title = container.getElementsByClassName('chapter-feed__title')[0];
@@ -299,6 +300,10 @@
             // Our observer can get called multiple times.
             if (title.classList.contains('condensed-parsed'))
               return;
+
+            // Mark that we loaded at least one thing.
+            // We know the page has loaded so we can try to inject the settings cog latter on.
+            loadedOne = true;
 
             const coverMode = GM_config.get('CoverMode');
             const coverStyle = GM_config.get('CoverStyle');
@@ -365,7 +370,7 @@
             // Adding our event listeners might have triggered a weird browser issue where our mouseenter event got triggered twice.
             // I noticed this happens on Firefox if your mouse is already over a cover image on page load.
             // Set our count to 0 to allow the hide function to properly clean up.
-            setTimeout(() => { count = 0; }, 0);
+            setTimeout(() => { count = 0; }, 1);
 
             // Set up default state (cover hidden).
             if (coverStyle === 'Hidden') {
@@ -405,6 +410,10 @@
             // Mark that we've processed this title.
             title.classList.add('condensed-parsed');
           }
+        }
+
+        if (loadedOne) {
+          addConfig();
         }
       };
 
@@ -488,7 +497,6 @@
     if (current_page_observers.length === 0) {
       style();
       observer();
-      addConfig();
     }
   }
 
