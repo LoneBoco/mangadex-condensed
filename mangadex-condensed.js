@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaDex Condensed
 // @namespace    suckerfree
-// @version      5
+// @version      6
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
 // @match        https://mangadex.org/titles/feed
@@ -28,10 +28,11 @@
   addGlobalStyle('.chapter-feed__container {gap: 0.35rem !important; padding: 0.5rem !important; margin-bottom: 0.5rem !important; grid-template-areas: "title title" "divider divider" "art list" !important;}');
 
   // Remove bolding of the chapter titles.
-  addGlobalStyle('.chapter-list__title {font-weight: normal !important;}');
+  // Adjust the font size of the series name.
+  addGlobalStyle('.chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important}');
 
-  // Slightly reduce the font size of the series name.
-  addGlobalStyle('.chapter-feed__title span {font-size: 0.85rem !important;}');
+  // Alter the grid spacing to give more room for the chapter name.
+  addGlobalStyle('.chapter-grid {grid-template-columns:minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}')
 
 })();
 
