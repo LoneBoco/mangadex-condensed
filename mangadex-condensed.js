@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      26
+// @version      27
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -159,13 +159,14 @@
 
   // Function for toggling a read chapter on mouse click.
   const toggleRead = function(ev) {
-    //debugger;
+    debugger;
     const tag = ev.target.tagName.toUpperCase();
     if (['SVG', 'PATH'].includes(tag)) return;
     if (ev.target.classList.contains('group-tag')) return;
     if (ev.target.classList.contains('user-tag')) return;
     if (ev.target.classList.contains('pill')) return;
     if (ev.target.closest('.read') !== null) return;
+    if (ev.target.attributes.title?.value.includes('comments') ?? false) return;
     const chapter = ev.target.closest('.chapter');
     if (chapter === null) return;
     const ind = chapter.getElementsByTagName('svg')[0];
@@ -373,9 +374,8 @@
               hide(undefined, 0);
             }
 
-            // Alter functionality around the chapter title.
+            // Add functionality for each chapter.
             for (const chapter of chapters.querySelectorAll('.chapter')) {
-              const read = chapter.classList.contains('read');
 
               // Add event to mark the chapter as read when clicked.
               chapter.addEventListener('click', toggleRead);
@@ -385,6 +385,15 @@
               const leftClickMode = GM_config.get('LeftClickMode');
               if (leftClickMode === 'New Window') {
                 chapter.setAttribute('target', '_blank');
+              }
+
+              // Allow middle click on the comment button.
+              const comment = chapter.querySelector('[title*="comment"]');
+              if (comment) {
+                comment.addEventListener('auxclick', (ev) => {
+                  ev.preventDefault();
+                  comment.dispatchEvent(new MouseEvent('click'));
+                });
               }
             }
 
@@ -443,7 +452,7 @@
       };
 
       try {
-        debugger;
+        //debugger;
         const page_container = document.querySelector(container_selector);
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
@@ -539,7 +548,7 @@
       };
 
       try {
-        debugger;
+        //debugger;
         const page_container = document.querySelector(container_selector);
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
