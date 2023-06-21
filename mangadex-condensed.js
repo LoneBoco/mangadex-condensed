@@ -1,7 +1,8 @@
 // ==UserScript==
 // @name         MangaDex Condensed
 // @namespace    suckerfree
-// @version      8
+// @license      MIT
+// @version      9
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
 // @match        https://mangadex.org/*
@@ -117,6 +118,9 @@
     function style() {
       // Give the chapter title a little more room.
       addGlobalStyle('.chapter-grid {grid-template-areas:"title title upload-info upload-info stats" !important;}');
+
+      // When a chapter is read, gray out the chapter name.
+      addGlobalStyle('.chapter.read {color:#b9b9b9 !important;}');
     }
 
     function observer() {
