@@ -1,10 +1,10 @@
 // ==UserScript==
 // @name         MangaDex Condensed
 // @namespace    suckerfree
-// @version      1.0
+// @version      1.1
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
-// @match        https://mangadex.org/titles/feed/
+// @match        https://mangadex.org/titles/feed
 // @icon         https://www.google.com/s2/favicons?domain=mangadex.org
 // @grant        none
 // ==/UserScript==
