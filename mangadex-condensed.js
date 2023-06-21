@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      21
+// @version      22
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -42,6 +42,16 @@
         'type': 'select',
         'options': ['Same Window', 'New Window'],
         'default': 'Same Window'
+      },
+      'CondenseElements': {
+        'label': 'Condense Page Elements (reduce whitespace)',
+        'type': 'checkbox',
+        'default': true
+      },
+      'CondenseFonts': {
+        'label': 'Adjust Font Sizes and Weights',
+        'type': 'checkbox',
+        'default': true
       }
     },
     'events': {
@@ -149,10 +159,14 @@
 
   // Function for toggling a read chapter on mouse click.
   const toggleRead = function(ev) {
+    const tag = ev.target.tagName.toUpperCase();
+    if (['A', 'SVG', 'PATH'].includes(tag)) return;
     if (ev.target.closest('.read') !== null) return;
-    const ind = ev.target.parentElement.getElementsByTagName('svg')[0];
+    const chapter = ev.target.closest('.chapter');
+    if (chapter === null) return;
+    const ind = chapter.getElementsByTagName('svg')[0];
     if (ind !== undefined)
-      ind.dispatchEvent(new MouseEvent('mousedown'));
+      ind.dispatchEvent(new MouseEvent('click'));
   }
 
   // Store this so when we change pages, we can disconnect it.
@@ -166,7 +180,7 @@
     {
       const style = `
         /* Thin out the container padding. */
-        #__nuxt[mdcpage="follow"] .chapter-feed__container.details {padding: 0.25rem !important;}
+        #__nuxt[mdcpage="follow"][mdcce="true"] .chapter-feed__container.details {padding: 0.25rem !important;}
 
         /* Adjust the location of the cover image. */
         #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}
@@ -175,7 +189,7 @@
 
         /* Remove bolding of the chapter titles. */
         /* Adjust the font size of the title. */
-        #__nuxt[mdcpage="follow"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
       `;
 
       addGlobalStyle(style);
@@ -185,16 +199,16 @@
     {
       const style = `
         /* Remove the spacing and apply chapter line separators. */
-        #__nuxt[mdcpage="title"] .flex.flex-col.gap-2 {gap: 0rem !important;}
-        #__nuxt[mdcpage="title"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}
+        #__nuxt[mdcpage="title"][mdcce="true"] .flex.flex-col.gap-2 {gap: 0rem !important;}
+        #__nuxt[mdcpage="title"][mdcce="true"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}
 
         /* Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread. */
-        #__nuxt[mdcpage="title"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.85rem !important;}
-        #__nuxt[mdcpage="title"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
-        #__nuxt[mdcpage="title"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
 
         /* Adjust line height of unread chapters. */
-        #__nuxt[mdcpage="title"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}
+        #__nuxt[mdcpage="title"][mdcce="true"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}
       `;
 
       addGlobalStyle(style);
@@ -204,17 +218,17 @@
     {
       const style = `
         /* Adjust the font size and styling. */
-        .chapter-feed__title {font-size: 0.85rem !important;}
-        .chapter-grid {font-size: 0.85rem !important;}
-        .chapter-grid .font-bold {font-weight: normal !important;}
+        #__nuxt[mdccf="true"] .chapter-feed__title {font-size: 0.85rem !important;}
+        #__nuxt[mdccf="true"] .chapter-grid {font-size: 0.85rem !important;}
+        #__nuxt[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
-        .chapter-grid {grid-template-columns: minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
-        .chapter-grid {grid-template-areas: "title timestamp groups uploader" !important;}
-        .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title timestamp groups uploader" !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
 
         /* Adjust container margin to be smaller. */
-        .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
+        #__nuxt[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
 
         /* Identify read chapters easier. */
           /* Darken the background color. */
@@ -242,12 +256,16 @@
     function style() {
       const coverStyle = GM_config.get('CoverStyle');
       const readStyle = GM_config.get('ReadChapterStyle');
+      const condenseElements = GM_config.get('CondenseElements');
+      const condenseFonts = GM_config.get('CondenseFonts');
 
       const nuxt = document.getElementById('__nuxt');
 
       nuxt.setAttribute('mdcpage', 'follow');
       nuxt.setAttribute('mdccover', coverStyle);
       nuxt.setAttribute('mdcstyle', readStyle);
+      if (condenseElements) nuxt.setAttribute('mdcce', condenseElements);
+      if (condenseFonts) nuxt.setAttribute('mdccf', condenseFonts);
     }
 
     function observer() {
@@ -340,20 +358,15 @@
             // Alter functionality around the chapter title.
             for (const chapter of chapters.querySelectorAll('.chapter')) {
               const read = chapter.classList.contains('read');
-              const atitle = chapter.querySelector('.chapter-grid > div:first-child > a');
-              if (atitle !== null) {
-                // Put the chapter name in the anchor's title so popups work.
-                atitle.title = atitle.text.trim();
 
-                // Add event to mark the chapter as read when clicked.
-                atitle.addEventListener('click', toggleRead);
-                atitle.addEventListener('auxclick', toggleRead);
+              // Add event to mark the chapter as read when clicked.
+              chapter.addEventListener('click', toggleRead);
+              chapter.addEventListener('auxclick', toggleRead);
 
-                // Alter anchor target.
-                const leftClickMode = GM_config.get('LeftClickMode');
-                if (leftClickMode === 'New Window') {
-                  atitle.setAttribute('target', '_blank');
-                }
+              // Alter anchor target.
+              const leftClickMode = GM_config.get('LeftClickMode');
+              if (leftClickMode === 'New Window') {
+                chapter.setAttribute('target', '_blank');
               }
             }
 
@@ -451,12 +464,16 @@
     function style() {
       const coverStyle = GM_config.get('CoverStyle');
       const readStyle = GM_config.get('ReadChapterStyle');
+      const condenseElements = GM_config.get('CondenseElements');
+      const condenseFonts = GM_config.get('CondenseFonts');
 
       const nuxt = document.getElementById('__nuxt');
 
       nuxt.setAttribute('mdcpage', 'title');
       nuxt.setAttribute('mdccover', coverStyle);
       nuxt.setAttribute('mdcstyle', readStyle);
+      if (condenseElements) nuxt.setAttribute('mdcce', condenseElements);
+      if (condenseFonts) nuxt.setAttribute('mdccf', condenseFonts);
     }
 
     function observer() {
@@ -486,20 +503,14 @@
           }
 
           // Alter functionality around the chapter title.
-          const atitle = chapter.querySelector('.chapter-grid > div:first-child > a');
-          if (atitle !== null) {
-            // Put the chapter name in the anchor's title so popups work.
-            atitle.title = atitle.text.trim();
+          // Add event to mark the chapter as read when clicked.
+          chapter.addEventListener('click', toggleRead);
+          chapter.addEventListener('auxclick', toggleRead);
 
-            // Add event to mark the chapter as read when clicked.
-            atitle.addEventListener('click', toggleRead);
-            atitle.addEventListener('auxclick', toggleRead);
-
-            // Alter anchor target.
-            const leftClickMode = GM_config.get('LeftClickMode');
-            if (leftClickMode === 'New Window') {
-              atitle.setAttribute('target', '_blank');
-            }
+          // Alter anchor target.
+          const leftClickMode = GM_config.get('LeftClickMode');
+          if (leftClickMode === 'New Window') {
+            chapter.setAttribute('target', '_blank');
           }
         }
       };

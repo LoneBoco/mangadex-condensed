@@ -3,13 +3,10 @@
 Improves the MangaDex experience by giving you lots of display options.
 
 ## Features
-
 * Optional condensed or hidden cover images that can expand to full size on mouse hover.
 * Different styles on read chapters so you can easily see them.
-* Filled out anchor title tags for chapter names so you get the full name on mouse over.
 * Clicking and middle clicking on chapters visibly marks them as read without a refresh.
-* Extra room for chapter names.
-* Removed some extraneous font bolding and reduced some text sizes.
+* Optional adjustments to layout and font sizes / weights.
 
 ## Configurable Options
 #### Popup/Enlarge Cover When Hovered On
@@ -40,5 +37,13 @@ Controls if chapters open in a new tab or not.
 - <small>**Same Window**: Navigates to the chapter (MangaDex default).</small>
 - <small>**New Window**: Opens chapter in a new tab.</small>  
 <sub>Default: Same Window</sub>
+
+#### Condense Page Elements
+Controls if page elements are condensed.  This basically reduces whitespace.  
+<sub>Default: Enabled</sub>
+
+#### Adjust Font Sizes and Weights
+Controls if the font should be made smaller and less bold.  
+<sub>Default: Enabled</sub>
 
 ![screenshot](./screenshots/screenshot_15.png)
