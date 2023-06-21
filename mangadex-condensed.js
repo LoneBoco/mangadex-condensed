@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      19
+// @version      20
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -599,7 +599,7 @@
   // This is the first bootstrap loader.
   // This will catch the main page being loaded.
   // At this point, we switch over to our page transfer loader which will detect page changes.
-  window.onload = (event) => {
+  window.addEventListener('load', (event) => {
     // Apply the styles now.  They will sit for all future pages.
     addStyles();
 
@@ -612,5 +612,5 @@
       console.log('[MDC] Page loaded, jumping to bootstrap.');
       bootstrap_loader([], load_observer);
     }
-  };
+  });
 })();
