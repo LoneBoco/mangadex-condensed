@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         MangaDex Condensed
 // @namespace    suckerfree
-// @version      4
+// @version      5
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
 // @match        https://mangadex.org/titles/feed
@@ -36,7 +36,7 @@
 })();
 
 const apply_js_cb = function(mutationsList, observer) {
-  observer.disconnect();
+  //observer.disconnect();
   console.log('Applying JS.');
 
   let containers = document.getElementsByClassName('chapter-feed__container');
