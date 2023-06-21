@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      22
+// @version      23
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -160,7 +160,10 @@
   // Function for toggling a read chapter on mouse click.
   const toggleRead = function(ev) {
     const tag = ev.target.tagName.toUpperCase();
-    if (['A', 'SVG', 'PATH'].includes(tag)) return;
+    if (['SVG', 'PATH'].includes(tag)) return;
+    if (ev.target.classList.contains('group-tag')) return;
+    if (ev.target.classList.contains('user-tag')) return;
+    if (ev.target.classList.contains('pill')) return;
     if (ev.target.closest('.read') !== null) return;
     const chapter = ev.target.closest('.chapter');
     if (chapter === null) return;
