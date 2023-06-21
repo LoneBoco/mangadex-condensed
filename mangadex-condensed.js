@@ -2,13 +2,13 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      12
+// @version      13
 // @description  Enhance MangaDex with a better Follows page with lots of display options.
 // @author       Nalin
 // @match        https://mangadex.org/*
 // @icon         https://www.google.com/s2/favicons?domain=mangadex.org
 //
-// @require      https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @require      https://cdn.jsdelivr.net/gh/sizzlemctwizzle/GM_config@2207c5c1322ebb56e401f03c2e581719f909762a/gm_config.js
 // @grant        GM_getValue
 // @grant        GM_setValue
 // ==/UserScript==
@@ -67,25 +67,27 @@
   let previous_pathname = location.pathname;
 
   ///////////////////////////////////////////////////////////////////////////////
-  function pageFollows() {
-    function style() {
-      let coverStyle = GM_config.get('CoverStyle');
-      let readStyle = GM_config.get('ReadChapterStyle');
 
+  function addStyles() {
+    // Follow.
+    {
       // Thin out the container padding.
-      addGlobalStyle('.chapter-feed__container.details {padding: 0.25rem !important;');
+      addGlobalStyle('#__nuxt[mdcpage="follow"] .chapter-feed__container.details {padding: 0.25rem !important;');
 
       // Adjust the location of the cover image.
-      if (coverStyle === 'Small') {
-        addGlobalStyle('.chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}');
-        addGlobalStyle('.chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}');
-      }
-      else if (coverStyle === 'Hidden') {
-        addGlobalStyle('.chapter-feed__container.details {grid-template-areas: "title title" "divider divider" "art list" !important;}');
-      }
+      addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}');
+      addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}');
+      addGlobalStyle('#__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container.details {grid-template-areas: "title title" "divider divider" "art list" !important;}');
+    }
 
+    // Title.
+    {
+    }
+
+    // All.
+    {
       // Remove bolding of the chapter titles.
-      // Adjust the font size of the series name.
+      // Adjust the font size of the title.
       addGlobalStyle('.chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}');
 
       // Adjust the font size for the series name.
@@ -94,18 +96,29 @@
       // Alter the grid spacing to give more room for the chapter name.
       addGlobalStyle('.chapter-grid {grid-template-columns:minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}');
 
-      if (readStyle === 'Darken Background') {
-        // Darken the background color.
-        addGlobalStyle('.chapter.read {background-color:var(--md-accent-darken2) !important;}');
-        addGlobalStyle('.condensed-read {background-color:var(--md-accent-darken2) !important;}');
-        addGlobalStyle('.light .chapter.read {color:#828282 !important;}');
-        addGlobalStyle('.dark .chapter.read {color:#6a6a6a !important;}');
-      }
-      else {
-        // When a chapter is read, gray out the chapter name.
-        addGlobalStyle('.light .chapter.read {color:#b9b9b9 !important;}');
-        addGlobalStyle('.dark .chapter.read {color:#6a6a6a !important;}');
-      }
+      // Identify read chapters easier.
+      // Darken the background color.
+      addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:var(--md-accent-darken2) !important;}');
+      addGlobalStyle('#__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:var(--md-accent-darken2) !important;}');
+      addGlobalStyle('.light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}');
+      addGlobalStyle('.dark  #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}');
+      // Gray out the chapter name.
+      addGlobalStyle('.light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}');
+      addGlobalStyle('.dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}');
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////
+  function pageFollows() {
+    function style() {
+      let coverStyle = GM_config.get('CoverStyle');
+      let readStyle = GM_config.get('ReadChapterStyle');
+
+      const nuxt = document.getElementById('__nuxt');
+
+      nuxt.setAttribute('mdcpage', 'follow');
+      nuxt.setAttribute('mdccover', coverStyle);
+      nuxt.setAttribute('mdcstyle', readStyle);
     }
 
     function observer() {
@@ -356,11 +369,14 @@
   ///////////////////////////////////////////////////////////////////////////////
   function pageTitle() {
     function style() {
-      // Give the chapter title a little more room.
-      addGlobalStyle('.chapter-grid {grid-template-areas:"title title upload-info upload-info stats" !important;}');
+      let coverStyle = GM_config.get('CoverStyle');
+      let readStyle = GM_config.get('ReadChapterStyle');
 
-      // When a chapter is read, gray out the chapter name.
-      addGlobalStyle('.read {color:#b9b9b9 !important;}');
+      const nuxt = document.getElementById('__nuxt');
+
+      nuxt.setAttribute('mdcpage', 'title');
+      nuxt.setAttribute('mdccover', coverStyle);
+      nuxt.setAttribute('mdcstyle', readStyle);
     }
 
     function observer() {
@@ -368,12 +384,10 @@
 
         const chapters = document.querySelectorAll('.chapter');
         for (const chapter of chapters) {
-          /*
           // Put the chapter name in the anchor's title so popups work.
           const title = chapter.querySelector('.chapter-grid > div:first-child > a');
           if (title !== undefined)
             title.title = title.text.trim();
-          */
 
           // Put the "read" class on chapter group titles so we can gray out the group text.
           const read = chapter.classList.contains('read');
@@ -434,6 +448,8 @@
         pageFunction = pageFollows;
       else if (/\/title\//.test(location.pathname))
         pageFunction = pageTitle;
+      else if (/\/group\//.test(location.pathname))
+        pageFunction = pageTitle;
 
       if (pageFunction !== undefined)
         pageFunction();
@@ -450,6 +466,9 @@
   // This will catch the main page being loaded.
   // At this point, we switch over to our page transfer loader which will detect page changes.
   window.onload = (event) => {
+    // Apply the styles now.  They will sit for all future pages.
+    addStyles();
+
     const load_observer = new MutationObserver(bootstrap_loader);
     load_observer.observe(document.body, {attributes: false, childList: true, subtree: false});
   };
