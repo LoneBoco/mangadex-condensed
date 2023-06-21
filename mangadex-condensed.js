@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      28
+// @version      29
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -159,14 +159,15 @@
 
   // Function for toggling a read chapter on mouse click.
   const toggleRead = function(ev) {
-    debugger;
+    //debugger;
     const tag = ev.target.tagName.toUpperCase();
     if (['SVG', 'PATH'].includes(tag)) return;
     if (ev.target.classList.contains('group-tag')) return;
     if (ev.target.classList.contains('user-tag')) return;
     if (ev.target.classList.contains('pill')) return;
+    if (ev.target.closest('a.comment-container') !== null) return;
     if (ev.target.closest('.read') !== null) return;
-    if (ev.target.attributes.title?.value.includes('comments') ?? false) return;
+    //if (ev.target.attributes.title?.value.includes('comments') ?? false) return;
     const chapter = ev.target.closest('.chapter');
     if (chapter === null) return;
     const ind = chapter.getElementsByTagName('svg')[0];
@@ -385,6 +386,7 @@
               }
 
               // Allow middle click on the comment button.
+              /*
               const comment = chapter.querySelector('[title*="comment"]');
               if (comment) {
                 comment.addEventListener('auxclick', (ev) => {
@@ -392,6 +394,7 @@
                   comment.dispatchEvent(new MouseEvent('click'));
                 });
               }
+              */
             }
 
             // Remove the alt-text on the flag.
@@ -659,7 +662,7 @@
     load_observer.observe(document.body, {attributes: false, childList: true, subtree: false});
 
     // Test for the page already being loaded.  This is a race condition that could break the observer.
-    debugger;
+    //debugger;
     const content_container = document.querySelector(pageContentSelector);
     if (content_container != null && content_container.hasChildNodes()) {
       console.log('[MDC] Page loaded, jumping to bootstrap.');
