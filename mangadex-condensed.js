@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      24
+// @version      25
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -207,8 +207,8 @@
         #__nuxt[mdcpage="title"][mdcce="true"] .chapter {border-bottom: 1px solid var(--md-accent-darken) !important;}
 
         /* Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread. */
-        #__nuxt[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.85rem !important;}
-        #__nuxt[mdcpage="title"][mdccf="true"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-grid > div:first-child > a {font-weight: 500 !important; font-size: 0.75rem !important;}
+        #__nuxt[mdcpage="title"][mdccf="true"] .chapter.read .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.75rem !important;}
         #__nuxt[mdcpage="title"][mdccf="true"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
 
         /* Adjust line height of unread chapters. */
@@ -222,14 +222,15 @@
     {
       const style = `
         /* Adjust the font size and styling. */
-        #__nuxt[mdccf="true"] .chapter-feed__title {font-size: 0.85rem !important;}
-        #__nuxt[mdccf="true"] .chapter-grid {font-size: 0.85rem !important;}
+        #__nuxt[mdccf="true"] .chapter-feed__title {font-size: 0.75rem !important;}
+        #__nuxt[mdccf="true"] .chapter-grid {font-size: 0.75rem !important;}
         #__nuxt[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title timestamp groups uploader" !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: minmax(0,8fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title groups uploader timestamp views comments" !important;}
         #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
+        #__nuxt[mdcce="true"] .chapter-grid > [title*="comment"] {min-width: 6ch;}
 
         /* Adjust container margin to be smaller. */
         #__nuxt[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
