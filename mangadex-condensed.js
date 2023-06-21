@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      23
+// @version      24
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -59,7 +59,7 @@
         const s = GM_config.frame.style;
         s.inset = '100px auto auto calc(50% - 500px/2)';
         s.width = '500px';
-        s.height = '250px';
+        s.height = '300px';
       },
       'save': function() { location.reload(); },
       'reset': function() { location.reload(); }
@@ -159,6 +159,7 @@
 
   // Function for toggling a read chapter on mouse click.
   const toggleRead = function(ev) {
+    //debugger;
     const tag = ev.target.tagName.toUpperCase();
     if (['SVG', 'PATH'].includes(tag)) return;
     if (ev.target.classList.contains('group-tag')) return;
@@ -256,6 +257,9 @@
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageFollows() {
+    const container_class = 'page-container';
+    const config_class = 'controls';
+
     function style() {
       const coverStyle = GM_config.get('CoverStyle');
       const readStyle = GM_config.get('ReadChapterStyle');
@@ -419,7 +423,7 @@
 
               // Reconnect our observer now that we pushed changes.
               try {
-                const page_container = document.getElementsByClassName('container mb-4')[0].parentElement;
+                const page_container = document.getElementsByClassName(container_class)[0].parentElement;
                 observer.observe(page_container, {attributes: true, subtree: true, attributeFilter: ['class']});
               } catch (error) {}
             }, 10);
@@ -428,7 +432,8 @@
       };
 
       try {
-        const page_container = document.getElementsByClassName('container mb-4')[0].parentElement;
+        //debugger;
+        const page_container = document.getElementsByClassName(container_class)[0].parentElement;
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
 
@@ -442,7 +447,7 @@
     }
 
     function addConfig() {
-      const controls = document.getElementsByClassName('controls')[0];
+      const controls = document.getElementsByClassName(config_class)[0];
       if (controls === undefined || controls.getElementsByClassName('condensed-settings').length !== 0)
         return;
 
@@ -464,6 +469,9 @@
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageTitle() {
+    const container_class = 'layout-container';
+    const config_class = '.layout-container div.sm\\:ml-2 > div';
+
     function style() {
       const coverStyle = GM_config.get('CoverStyle');
       const readStyle = GM_config.get('ReadChapterStyle');
@@ -520,7 +528,7 @@
 
       try {
         //debugger;
-        const page_container = document.getElementsByClassName('flex gap-6 items-start mb-6')[0];
+        const page_container = document.getElementsByClassName(container_class)[0];
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
 
@@ -531,7 +539,7 @@
     function addConfig() {
       let controls = document.getElementsByClassName('controls')[0];
       if (controls === undefined)
-        controls = document.querySelector('.manga-container div.sm\\:ml-2 > div');
+        controls = document.querySelector(config_class);
       if (controls === undefined || controls === null || controls.getElementsByClassName('condensed-settings').length !== 0)
         return;
 
