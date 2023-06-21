@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      18
+// @version      19
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -145,6 +145,14 @@
         return attribute.name;
       return null;
     }
+  }
+
+  // Function for toggling a read chapter on mouse click.
+  const toggleRead = function(ev) {
+    if (ev.target.closest('.read') !== null) return;
+    const ind = ev.target.parentElement.getElementsByTagName('svg')[0];
+    if (ind !== undefined)
+      ind.dispatchEvent(new MouseEvent('mousedown'));
   }
 
   // Store this so when we change pages, we can disconnect it.
@@ -327,24 +335,15 @@
 
             // Alter functionality around the chapter title.
             for (const chapter of chapters.querySelectorAll('.chapter')) {
+              const read = chapter.classList.contains('read');
               const atitle = chapter.querySelector('.chapter-grid > div:first-child > a');
               if (atitle !== null) {
                 // Put the chapter name in the anchor's title so popups work.
                 atitle.title = atitle.text.trim();
 
                 // Add event to mark the chapter as read when clicked.
-                atitle.addEventListener('click', ev => {
-                  const ind = ev.target.parentElement.getElementsByTagName('svg')[0];
-                  if (ind !== undefined)
-                    ind.dispatchEvent(new MouseEvent('mousedown'));
-                });
-                atitle.addEventListener('auxclick', ev => {
-                  if (ev.button === 1) {
-                    const ind = ev.target.parentElement.getElementsByTagName('svg')[0];
-                    if (ind !== undefined)
-                      ind.dispatchEvent(new MouseEvent('mousedown'));
-                  }
-                });
+                atitle.addEventListener('click', toggleRead);
+                atitle.addEventListener('auxclick', toggleRead);
 
                 // Alter anchor target.
                 const leftClickMode = GM_config.get('LeftClickMode');
@@ -490,18 +489,8 @@
             atitle.title = atitle.text.trim();
 
             // Add event to mark the chapter as read when clicked.
-            atitle.addEventListener('click', ev => {
-              const ind = ev.target.parentElement.getElementsByTagName('svg')[0];
-              if (ind !== undefined)
-                ind.dispatchEvent(new MouseEvent('mousedown'));
-            });
-            atitle.addEventListener('auxclick', ev => {
-              if (ev.button === 1) {
-                const ind = ev.target.parentElement.getElementsByTagName('svg')[0];
-                if (ind !== undefined)
-                  ind.dispatchEvent(new MouseEvent('mousedown'));
-              }
-            });
+            atitle.addEventListener('click', toggleRead);
+            atitle.addEventListener('auxclick', toggleRead);
 
             // Alter anchor target.
             const leftClickMode = GM_config.get('LeftClickMode');
@@ -619,7 +608,7 @@
 
     // Test for the page already being loaded.  This is a race condition that could break the observer.
     const content_container = document.querySelector(pageContentSelector);
-    if (content_container.hasChildNodes()) {
+    if (content_container != null && content_container.hasChildNodes()) {
       console.log('[MDC] Page loaded, jumping to bootstrap.');
       bootstrap_loader([], load_observer);
     }
