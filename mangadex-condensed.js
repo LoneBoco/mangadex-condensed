@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      20
+// @version      21
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -203,11 +203,15 @@
     // All.
     {
       const style = `
-        /* Adjust the font size for the series name. */
+        /* Adjust the font size and styling. */
         .chapter-feed__title {font-size: 0.85rem !important;}
+        .chapter-grid {font-size: 0.85rem !important;}
+        .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
-        .chapter-grid {grid-template-columns:minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
+        .chapter-grid {grid-template-columns: minmax(0,8fr) minmax(0,4fr) minmax(0,2fr) minmax(0,3fr) !important;}
+        .chapter-grid {grid-template-areas: "title timestamp groups uploader" !important;}
+        .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
 
         /* Adjust container margin to be smaller. */
         .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
@@ -441,7 +445,6 @@
       addConfig();
     }
   }
-
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageTitle() {
