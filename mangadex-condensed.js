@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      10
+// @version      11
 // @description  Condense MangaDex for the whitespace impaired.
 // @author       Nalin, u/stonksonlydown
 // @match        https://mangadex.org/*
@@ -23,10 +23,15 @@
     'id': 'MangaDexCondensed',
     'fields': {
       'CoverMode': {
-        'label': 'Cover Display Mode',
+        'label': 'Popup Cover When Hovered On',
         'type': 'select',
-        'options': ['Container', 'Title + Cover', 'Title', 'Never'],
-        'default': 'Title'
+        'options': ['Container', 'Title + Cover', 'Title', 'Cover', 'Never'],
+        'default': 'Cover'
+      },
+      'CoverSmallPreview': {
+        'label': 'Always Show Small Cover',
+        'type': 'checkbox',
+        'default': true
       }
     },
     'events': {
@@ -60,8 +65,19 @@
   ///////////////////////////////////////////////////////////////////////////////
   function pageFollows() {
     function style() {
+      let coverSmallPreview = GM_config.get('CoverSmallPreview');
+
       // Thin out the container padding.
-      addGlobalStyle('.chapter-feed__container {gap: 0.35rem !important; padding: 0.5rem !important; margin-bottom: 0.5rem !important; grid-template-areas: "title title" "divider divider" "art list" !important;}');
+      addGlobalStyle('.chapter-feed__container {gap: 0.35rem !important; padding: 0.5rem !important; margin-bottom: 0.5rem !important;}');
+
+      // Adjust the location of the cover image.
+      if (coverSmallPreview) {
+        addGlobalStyle('.chapter-feed__container {grid-template-columns: 50px minmax(0,1fr) !important;}');
+        addGlobalStyle('.chapter-feed__cover {width: 42px !important; height: 60px !important; max-height: initial !important; padding-bottom: 0px !important;}');
+      }
+      else {
+        addGlobalStyle('.chapter-feed__container {grid-template-areas: "title title" "divider divider" "art list" !important;}');
+      }
 
       // Remove bolding of the chapter titles.
       // Adjust the font size of the series name.
@@ -79,7 +95,8 @@
 
     function observer() {
       const apply_js_cb = async function(mutationsList, observer) {
-        observer.disconnect();
+        if (observer !== undefined)
+          observer.disconnect();
 
         let containers = document.getElementsByClassName('chapter-feed__container');
         for (const container of containers) {
@@ -88,32 +105,48 @@
           let chapters = container.getElementsByClassName('chapter-feed__chapters')[0];
 
           if (title && cover && chapters) {
+            // Abort if we've already processed this title.
+            // Our observer can get called multiple times.
+            if (title.classList.contains('condensed-parsed'))
+              return;
+
             let count = 0;
             let coverMode = GM_config.get('CoverMode');
+            let coverSmallPreview = GM_config.get('CoverSmallPreview');
             let hideTimeout = 0;
 
-            if (coverMode === 'Title + Cover') hideTimeout = 100;
-            if (coverMode === 'Container') hideTimeout = 50;
+            // If we are popping the cover out, add some grace for the hide.
+            if (!coverSmallPreview) {
+              if (coverMode === 'Title + Cover') hideTimeout = 100;
+              if (coverMode === 'Container') hideTimeout = 50;
+            }
 
             const hide = function(e, t = hideTimeout) {
               setTimeout(function() {
                 if (--count <= 0) {
                   count = 0;
-                  cover.style.display = "none";
-                  chapters.style.gridColumn = "span 2 / span 2";
+                  if (coverSmallPreview) {
+                    cover.style = "";
+                    container.style = "";
+                  }
+                  else {
+                    cover.style.display = "none";
+                    chapters.style.gridColumn = "span 2 / span 2";
+                  }
                 }
               }, t);
             };
             const show = function() {
               ++count;
-              cover.style.display = "grid";
-              chapters.style.gridColumn = "span 1 / span 1";
+              if (coverSmallPreview) {
+                cover.style = "width: 140px !important; height: 196px !important;";
+                container.style = "grid-template-columns: 140px minmax(0,1fr) !important;"
+              }
+              else {
+                cover.style.display = "grid";
+                chapters.style.gridColumn = "span 1 / span 1";
+              }
             };
-
-            // Abort if we've already processed this title.
-            // Our observer can get called multiple times.
-            if (title.classList.contains('condensed-parsed'))
-              return;
 
             // Controls our method of showing covers.
             // Mouse enters: Show the cover and move the chapters over to the next column.
@@ -122,20 +155,19 @@
               container.addEventListener('mouseleave', hide);
               container.addEventListener('mouseenter', show);
             }
-            else {
-              if (coverMode !== "Never") {
-                title.addEventListener('mouseleave', hide);
-                title.addEventListener('mouseenter', show);
-              }
-
-              if (coverMode === 'Title + Cover') {
-                cover.addEventListener('mouseleave', hide);
-                cover.addEventListener('mouseenter', show);
-              }
+            if (coverMode === "Title" || coverMode == "Title + Cover") {
+              title.addEventListener('mouseleave', hide);
+              title.addEventListener('mouseenter', show);
+            }
+            if (coverMode === "Cover" || coverMode == "Title + Cover") {
+              cover.addEventListener('mouseleave', hide);
+              cover.addEventListener('mouseenter', show);
             }
 
             // Set up default state (cover hidden).
-            hide(undefined, 0);
+            if (!coverSmallPreview) {
+              hide(undefined, 0);
+            }
 
             // Put the chapter name in the anchor's title so popups work.
             for (const chapter of chapters.querySelectorAll('.chapter')) {
@@ -155,17 +187,20 @@
       };
 
       try {
+        //debugger;
         const page_container = document.getElementsByClassName('container mb-4')[0].parentElement;
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
         current_page_observer = chapter_observer;
+
+        apply_js_cb();
       } catch (error) {}
     }
 
     function addConfig() {
       //debugger;
       let controls = document.getElementsByClassName('controls')[0];
-      if (controls.getElementsByClassName('condensed-settings').length !== 0)
+      if (controls === undefined || controls.getElementsByClassName('condensed-settings').length !== 0)
         return;
 
       let findDataAttribute = function(e) {
@@ -241,7 +276,11 @@
       controls.append(config);
     }
 
-    style();
+    // Avoid adding tons of duplicate styles.
+    if (current_page_observer === undefined) {
+      style();
+    }
+
     observer();
     addConfig();
   }
@@ -290,8 +329,10 @@
       } catch (error) {}
     }
 
-    style();
-    observer();
+    if (current_page_observer === undefined) {
+      style();
+      observer();
+    }
   }
 
   ///////////////////////////////////////////////////////////////////////////////
