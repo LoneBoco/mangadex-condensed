@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      25
+// @version      26
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -89,7 +89,7 @@
     // https://www.svgrepo.com/svg/201666/settings-gear
 
     path1.setAttribute('stroke', 'currentColor');
-    path1.setAttribute('stroke-width', '2');
+    path1.setAttribute('stroke-width', '1');
     path1.setAttribute('d', `M491.584,192.579l-55.918-6.914c-0.919-2.351-1.884-4.682-2.892-6.993l34.648-44.428
       c7.227-9.267,6.412-22.464-1.899-30.773l-57.028-56.996c-8.308-8.304-21.502-9.114-30.763-1.893L333.32,79.216
       c-2.312-1.008-4.644-1.974-6.994-2.894l-6.915-55.904c-1.443-11.66-11.348-20.415-23.097-20.415h-80.637
@@ -115,7 +115,7 @@
       c2.661,8.825,10.279,15.248,19.427,16.381l49.878,6.169V275.74z`);
 
     path2.setAttribute('stroke', 'currentColor');
-    path2.setAttribute('stroke-width', '2');
+    path2.setAttribute('stroke-width', '1');
     path2.setAttribute('d', `M255.997,155.153c-55.606,0-100.845,45.244-100.845,100.856c0,55.603,45.239,100.839,100.845,100.839
       c55.609,0,100.852-45.236,100.852-100.839C356.849,200.397,311.606,155.153,255.997,155.153z M255.997,310.303
       c-29.941,0-54.3-24.356-54.3-54.294c0-29.947,24.359-54.311,54.3-54.311c29.944,0,54.306,24.363,54.306,54.311
@@ -126,7 +126,7 @@
     icon.setAttribute('width', '24');
     icon.setAttribute('height', '24');
     icon.setAttribute('viewBox', '0 0 512 512');
-    icon.setAttribute('fill', 'currentColor');
+    icon.setAttribute('fill', 'black');
 
     config.classList.add('condensed-settings');
     config.addEventListener('click', function() { GM_config.open(); });
@@ -175,7 +175,7 @@
 
   // Store this so when we change pages, we can disconnect it.
   let current_page_observers = [];
-  let previous_pathname = location.pathname;
+  let previous_pathname = '';
 
   ///////////////////////////////////////////////////////////////////////////////
 
@@ -193,7 +193,7 @@
 
         /* Remove bolding of the chapter titles. */
         /* Adjust the font size of the title. */
-        #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.85rem !important;}
+        #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-grid > div:first-child > a {font-weight: normal !important; font-size: 0.75rem !important;}
       `;
 
       addGlobalStyle(style);
@@ -227,13 +227,23 @@
         #__nuxt[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: minmax(0,8fr) minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) !important;}
+        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: minmax(0,6fr) minmax(0,1fr) minmax(0,1fr) minmax(0,120px) auto auto !important;}
         #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title groups uploader timestamp views comments" !important;}
         #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
         #__nuxt[mdcce="true"] .chapter-grid > [title*="comment"] {min-width: 6ch;}
 
         /* Adjust container margin to be smaller. */
         #__nuxt[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
+
+        /* Adjust the lift color for read chapters. */
+        .chapter.read .group-tag.lift:hover {background-color:var(--md-accent-darken) !important;}
+        .chapter.read .pill.lift:hover {background-color:var(--md-accent-darken) !important;}
+
+        /* Add a lift for comments. */
+        .chapter [title*="comment"]:hover {background-color:var(--md-accent-darken2); border-radius:0.25rem;}
+        .dark .chapter [title*="comment"]:hover {background-color:var(--md-accent-lighten2);}
+        .dark .chapter.read [title*="comment"]:hover {background-color:var(--md-accent-lighten);}
+        .light .chapter.read [title*="comment"]:hover {background-color:var(--md-accent-darken);}
 
         /* Identify read chapters easier. */
           /* Darken the background color. */
@@ -258,7 +268,7 @@
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageFollows() {
-    const container_class = 'page-container';
+    const container_selector = '#__layout';
     const config_class = 'controls';
 
     function style() {
@@ -424,7 +434,7 @@
 
               // Reconnect our observer now that we pushed changes.
               try {
-                const page_container = document.getElementsByClassName(container_class)[0].parentElement;
+                const page_container = document.querySelector(container_selector);
                 observer.observe(page_container, {attributes: true, subtree: true, attributeFilter: ['class']});
               } catch (error) {}
             }, 10);
@@ -433,8 +443,8 @@
       };
 
       try {
-        //debugger;
-        const page_container = document.getElementsByClassName(container_class)[0].parentElement;
+        debugger;
+        const page_container = document.querySelector(container_selector);
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
 
@@ -470,8 +480,9 @@
 
   ///////////////////////////////////////////////////////////////////////////////
   function pageTitle() {
-    const container_class = 'layout-container';
-    const config_class = '.layout-container div.sm\\:ml-2 > div';
+    const container_selector = '#__layout';
+    const config_class = '.layout-container div.sm\\:ml-2 .flex.mb-6';
+    const config_class2 = '.layout-container div.sm\\:ml-2 .flex.mb-2';
 
     function style() {
       const coverStyle = GM_config.get('CoverStyle');
@@ -528,8 +539,8 @@
       };
 
       try {
-        //debugger;
-        const page_container = document.getElementsByClassName(container_class)[0];
+        debugger;
+        const page_container = document.querySelector(container_selector);
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
 
@@ -541,6 +552,8 @@
       let controls = document.getElementsByClassName('controls')[0];
       if (controls === undefined)
         controls = document.querySelector(config_class);
+      if (controls === null)
+        controls = document.querySelector(config_class2);
       if (controls === undefined || controls === null || controls.getElementsByClassName('condensed-settings').length !== 0)
         return;
 
@@ -572,7 +585,7 @@
   ///////////////////////////////////////////////////////////////////////////////
   // This is our loader.
   //debugger;
-  const pageContentSelector = '#__layout > div:first-child > div:nth-child(2) > div:nth-child(2)';
+  const pageContentSelector = '#__layout';
   const bootstrap_loader = function(mutationsList, observer) {
     console.log('[MDC] Bootstrap loader.');
     observer.disconnect();
@@ -580,27 +593,29 @@
 
     // Detects page changes.
     const page_transfer_loader = function(mutationsList, observer) {
-      observer.disconnect();
-      observer.takeRecords();
 
-      if (current_page_observers.length !== 0 && previous_pathname !== location.pathname) {
+      const full_location = location.pathname + location.search;
+      if (previous_pathname === full_location)
+        return;
+
+      previous_pathname = full_location;
+      if (current_page_observers.length !== 0) {
         current_page_observers.forEach((x) => { x.disconnect(); x.takeRecords(); });
         current_page_observers = [];
-        previous_pathname = location.pathname;
       }
 
       // Choose the style function to apply.
       //debugger;
       let pageFunction = undefined;
-      if (/\/titles\/feed/.test(location.pathname))
+      if (/\/titles\/feed/.test(full_location))
         pageFunction = pageFollows;
-      else if (/\/titles\/latest/.test(location.pathname))
+      else if (/\/titles\/latest/.test(full_location))
         pageFunction = pageFollows;
-      else if (/\/my\/history/.test(location.pathname))
+      else if (/\/my\/history/.test(full_location))
         pageFunction = pageFollows;
-      else if (/\/title\//.test(location.pathname))
+      else if (/\/title\//.test(full_location))
         pageFunction = pageTitle;
-      else if (/\/group\//.test(location.pathname))
+      else if (/\/group\//.test(full_location))
         pageFunction = pageTitle;
 
       if (pageFunction !== undefined) {
@@ -608,7 +623,7 @@
         pageFunction();
       }
 
-      observer.observe(content_container, {attributes: false, childList: true, subtree: true});
+      // observer.observe(content_container, {attributes: false, childList: true, subtree: true});
     };
 
     const content_container = document.querySelector(pageContentSelector);
