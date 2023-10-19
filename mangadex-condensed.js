@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      31
+// @version      32
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -80,7 +80,7 @@
 
   // Creates the settings button.
   function createSettingsButton(divData, svgData) {
-    const config = document.createElement('div');
+    const config = document.createElement('button');
     const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     const path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     const path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -223,6 +223,11 @@
     // All.
     {
       const style = `
+        /* Settings cog. */
+        button.condensed-settings {position: relative;}
+        button.condensed-settings::after {background: #000; opacity: 0; content: ""; position: absolute; top: 0; bottom: 0; left: 0; right: 0; transition: all .1s ease-out;}
+        button.condensed-settings:hover::after {opacity: 0.2;}
+
         /* Adjust the font size and styling. */
         #__nuxt[mdccf="true"] .chapter-feed__title {font-size: 0.75rem !important;}
         #__nuxt[mdccf="true"] .chapter-grid {font-size: 0.75rem !important;}
@@ -589,7 +594,7 @@
       controls.classList.add('condensed-parsed');
 
       const config = createSettingsButton();
-      config.classList.add('rounded', 'relative', 'md-btn', 'flex', 'items-center', 'px-3', 'justify-center', 'text-black',
+      config.classList.add('rounded', 'relative', 'md-btn', 'flex', 'items-center', 'overflow-hidden', 'px-3', 'justify-center', 'text-black',
                            'dark:text-white', 'bg-accent', 'hover:bg-accent-darken', 'active:bg-accent-darken2',
                            'dark:bg-accent-lighten2', 'dark:hover:bg-accent-lighten', 'dark:active:bg-accent', 'px-0');
       config.style.minHeight = '48px';
