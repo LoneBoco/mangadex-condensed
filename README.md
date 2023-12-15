@@ -1,6 +1,6 @@
 # MangaDex Condensed
 
-Improves the MangaDex experience by giving you lots of display options.
+Improves the MangaDex experience by giving you lots of display options.  Click the settings gear on most pages to configure the script.
 
 ## Features
 * Optional condensed or hidden cover images that can expand to full size on mouse hover.
@@ -29,7 +29,7 @@ Controls the size of the cover image.
 Controls the direction that the cover expands.
 - <small>**Up**: Expand upwards.</small>
 - <small>**Down**: Expand downwards.</small>  
-<sub>Default: Up</sub>
+<sub>Default: Down</sub>
 
 #### Read Chapter Style
 Controls the style of read chapters in the chapter list.

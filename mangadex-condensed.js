@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      34
+// @version      35
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -35,7 +35,7 @@
         'label': 'Cover Expands',
         'type': 'select',
         'options': ['Up', 'Down'],
-        'default': 'Up'
+        'default': 'Down'
       },
       'ReadChapterStyle': {
         'label': 'Read Chapter Style',
