@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      33
+// @version      34
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -30,6 +30,12 @@
         'type': 'select',
         'options': ['Small', 'Full Size', 'Hidden'],
         'default': 'Small'
+      },
+      'CoverExpandDirection': {
+        'label': 'Cover Expands',
+        'type': 'select',
+        'options': ['Up', 'Down'],
+        'default': 'Up'
       },
       'ReadChapterStyle': {
         'label': 'Read Chapter Style',
@@ -121,7 +127,7 @@
       c-29.941,0-54.3-24.356-54.3-54.294c0-29.947,24.359-54.311,54.3-54.311c29.944,0,54.306,24.363,54.306,54.311
       C310.303,285.947,285.941,310.303,255.997,310.303z`);
 
-    icon.classList.add('text-icon-black', "dark:text-icon-white", 'text-false', 'icon');
+    icon.classList.add('text-icon-black', 'dark:text-icon-white', 'text-false', 'icon');
     icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     icon.setAttribute('width', '24');
     icon.setAttribute('height', '24');
@@ -314,6 +320,7 @@
 
             const coverMode = GM_config.get('CoverMode');
             const coverStyle = GM_config.get('CoverStyle');
+            const coverExpand = GM_config.get('CoverExpandDirection');
             let count = 0;
             let hideTimeout = 0;
 
@@ -332,12 +339,21 @@
                 if (--count <= 0) {
                   count = 0;
                   if (coverStyle !== 'Hidden') {
-                    cover.style = "";
-                    container.style = "";
+                    const scrollpos = parseInt(container.getAttribute('data-mdc-scrollpos'));
+                    if (!isNaN(scrollpos)) {
+                      container.removeAttribute('data-mdc-scrollpos');
+                      if (window.scrollY !== window.scrollMaxY) {
+                        //const originalY = window.scrollY;
+                        window.scrollBy({top: -parseInt(scrollpos), behavior: 'instant'});
+                        //console.log(`[MDC] Scrolling up ${scrollpos}, (${originalY}) to (${window.scrollY})`);
+                      }
+                    }
+                    cover.style = '';
+                    container.style = '';
                   }
                   else {
-                    cover.style.display = "none";
-                    chapters.style.gridColumn = "span 2 / span 2";
+                    cover.style.display = 'none';
+                    chapters.style.gridColumn = 'span 2 / span 2';
                   }
                 }
               }, t);
@@ -349,29 +365,38 @@
 
               ++count;
               if (coverStyle !== 'Hidden') {
-                cover.style = "width: 140px !important; height: 196px !important;";
-                container.style = "grid-template-columns: 140px minmax(0,1fr) !important;"
+                const containerDifference = 196 - (container.clientHeight - 8);
+                cover.style = 'width: 140px !important; height: 196px !important;';
+                container.style = 'grid-template-columns: 140px minmax(0,1fr) !important;';
+                if (containerDifference > 0 && coverExpand === 'Up') {
+                  const originalY = window.scrollY;
+                  window.scrollBy({top: containerDifference, behavior: 'instant'});
+                  container.setAttribute('data-mdc-scrollpos', window.scrollY - originalY);
+                  //console.log(`[MDC] Scrolling down ${window.scrollY - originalY}, (${originalY}) to (${window.scrollY})`);
+                }
               }
               else {
-                cover.style.display = "grid";
-                chapters.style.gridColumn = "span 1 / span 1";
+                cover.style.display = 'grid';
+                chapters.style.gridColumn = 'span 1 / span 1';
               }
             };
 
             // Controls our method of showing covers.
             // Mouse enters: Show the cover and move the chapters over to the next column.
             // Mouse leaves: Hide the cover and span the chapters across the whole grid row.
-            if (coverMode === 'Container') {
-              container.addEventListener('mouseleave', hide);
-              container.addEventListener('mouseenter', show);
-            }
-            if (coverMode === "Title" || coverMode == "Title + Cover") {
-              title.addEventListener('mouseleave', hide);
-              title.addEventListener('mouseenter', show);
-            }
-            if (coverMode === "Cover" || coverMode == "Title + Cover") {
-              cover.addEventListener('mouseleave', hide);
-              cover.addEventListener('mouseenter', show);
+            if (coverStyle !== 'Full Size') {
+              if (coverMode === 'Container') {
+                container.addEventListener('mouseleave', hide);
+                container.addEventListener('mouseenter', show);
+              }
+              if (coverMode === 'Title' || coverMode == 'Title + Cover') {
+                title.addEventListener('mouseleave', hide);
+                title.addEventListener('mouseenter', show);
+              }
+              if (coverMode === 'Cover' || coverMode == 'Title + Cover') {
+                cover.addEventListener('mouseleave', hide);
+                cover.addEventListener('mouseenter', show);
+              }
             }
 
             // Adding our event listeners might have triggered a weird browser issue where our mouseenter event got triggered twice.

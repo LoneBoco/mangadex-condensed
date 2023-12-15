@@ -25,6 +25,12 @@ Controls the size of the cover image.
 - <small>**Hidden**: Don't show the cover preview (cover can still be shown with popup options).</small>  
 <sub>Default: Small</sub>
 
+#### Cover Expands
+Controls the direction that the cover expands.
+- <small>**Up**: Expand upwards.</small>
+- <small>**Down**: Expand downwards.</small>  
+<sub>Default: Up</sub>
+
 #### Read Chapter Style
 Controls the style of read chapters in the chapter list.
 - <small>**Darken Background**: Darkens the background color.</small>
