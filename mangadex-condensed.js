@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      35
+// @version      36
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -335,19 +335,30 @@
               if (container.classList.contains('compact'))
                 return;
 
-              setTimeout(function() {
+              setTimeout(() => {
                 if (--count <= 0) {
                   count = 0;
                   if (coverStyle !== 'Hidden') {
-                    const scrollpos = parseInt(container.getAttribute('data-mdc-scrollpos'));
+                    let scrollpos = parseInt(container.getAttribute('data-mdc-scrollpos'));
                     if (!isNaN(scrollpos)) {
                       container.removeAttribute('data-mdc-scrollpos');
                       if (window.scrollY !== window.scrollMaxY) {
-                        //const originalY = window.scrollY;
-                        window.scrollBy({top: -parseInt(scrollpos), behavior: 'instant'});
+                        const originalY = window.scrollY;
+                        const distanceToBottom = window.scrollMaxY - window.scrollY;
+
+                        // When we are closer to the bottom than the scroll pos, only scroll by the difference to the bottom.
+                        // This solves an edge case where you are one or two scrolls from the bottom it doesn't reset to the correct position.
+                        if (distanceToBottom < scrollpos)
+                          scrollpos = distanceToBottom;
+
+                        window.scrollBy({top: -scrollpos, behavior: 'instant'});
                         //console.log(`[MDC] Scrolling up ${scrollpos}, (${originalY}) to (${window.scrollY})`);
                       }
+                      else {
+                        //console.log(`[MDC] Not scrolling up, at page bottom.`);
+                      }
                     }
+
                     cover.style = '';
                     container.style = '';
                   }
