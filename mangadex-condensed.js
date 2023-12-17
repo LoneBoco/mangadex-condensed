@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      36
+// @version      37
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -192,16 +192,24 @@
     {
       const style = `
         /* Thin out the container padding. */
-        #__nuxt[mdcpage="follow"][mdcce="true"] .chapter-feed__container.details {padding: 0.25rem !important;}
+        #__nuxt[mdcpage="follow"][mdcce="true"] .chapter-feed__container {padding: 0.25rem !important;}
 
         /* Adjust the location of the cover image. */
-        #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container.details {grid-template-columns: 41px minmax(0,1fr) !important;}
+        #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container {grid-template-columns: 41px minmax(0,1fr) !important;}
         #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}
-        #__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container.details {grid-template-areas: "title title" "divider divider" "art list" !important;}
+        #__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container {grid-template-areas: "title title" "list list" !important;}
+        #__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__cover {display:none;}
 
         /* Remove bolding of the chapter titles. */
         /* Adjust the font size of the title. */
         #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
+
+        /* Cover expansion. */
+        #__nuxt[mdcpage="follow"][mdcshowscover="true"] .chapter-feed__container.mdc-cover-expand {grid-template-columns: 140px minmax(0,1fr) !important; position: relative;}
+        #__nuxt[mdcpage="follow"][mdcshowscover="true"] .chapter-feed__container.mdc-cover-expand a.chapter-feed__cover {width: 140px !important; height: 196px !important;}
+        #__nuxt[mdcpage="follow"] .mdc-cover-expand .chapter-feed__cover {display:revert;}
+        #__nuxt[mdcpage="follow"][mdcshowscover="true"][mdccover="Hidden"] .chapter-feed__container.mdc-cover-expand {grid-template-areas: "art title" "art list" !important;}
+        #__nuxt[mdcpage="follow"][mdccoverexpand="Up"] .mdc-cover-expand .chapter-feed__cover {top: calc(53px - 196px); outline: 4px solid rgb(var(--md-accent)); position: absolute;}
       `;
 
       addGlobalStyle(style);
@@ -284,7 +292,9 @@
     const config_class = 'controls';
 
     function style() {
+      const coverMode = GM_config.get('CoverMode');
       const coverStyle = GM_config.get('CoverStyle');
+      const coverExpand = GM_config.get('CoverExpandDirection');
       const readStyle = GM_config.get('ReadChapterStyle');
       const condenseElements = GM_config.get('CondenseElements');
       const condenseFonts = GM_config.get('CondenseFonts');
@@ -293,9 +303,12 @@
 
       nuxt.setAttribute('mdcpage', 'follow');
       nuxt.setAttribute('mdccover', coverStyle);
+      nuxt.setAttribute('mdccoverexpand', coverExpand);
       nuxt.setAttribute('mdcstyle', readStyle);
       if (condenseElements) nuxt.setAttribute('mdcce', condenseElements);
       if (condenseFonts) nuxt.setAttribute('mdccf', condenseFonts);
+      if (coverStyle !== 'Hidden' || coverStyle === 'Hidden' && ['Title + Cover', 'Container'].includes(coverMode))
+        nuxt.setAttribute('mdcshowscover', true);
     }
 
     function observer() {
@@ -338,34 +351,7 @@
               setTimeout(() => {
                 if (--count <= 0) {
                   count = 0;
-                  if (coverStyle !== 'Hidden') {
-                    let scrollpos = parseInt(container.getAttribute('data-mdc-scrollpos'));
-                    if (!isNaN(scrollpos)) {
-                      container.removeAttribute('data-mdc-scrollpos');
-                      if (window.scrollY !== window.scrollMaxY) {
-                        const originalY = window.scrollY;
-                        const distanceToBottom = window.scrollMaxY - window.scrollY;
-
-                        // When we are closer to the bottom than the scroll pos, only scroll by the difference to the bottom.
-                        // This solves an edge case where you are one or two scrolls from the bottom it doesn't reset to the correct position.
-                        if (distanceToBottom < scrollpos)
-                          scrollpos = distanceToBottom;
-
-                        window.scrollBy({top: -scrollpos, behavior: 'instant'});
-                        //console.log(`[MDC] Scrolling up ${scrollpos}, (${originalY}) to (${window.scrollY})`);
-                      }
-                      else {
-                        //console.log(`[MDC] Not scrolling up, at page bottom.`);
-                      }
-                    }
-
-                    cover.style = '';
-                    container.style = '';
-                  }
-                  else {
-                    cover.style.display = 'none';
-                    chapters.style.gridColumn = 'span 2 / span 2';
-                  }
+                  container.classList.remove('mdc-cover-expand');
                 }
               }, t);
             };
@@ -375,21 +361,7 @@
                 return;
 
               ++count;
-              if (coverStyle !== 'Hidden') {
-                const containerDifference = 196 - (container.clientHeight - 8);
-                cover.style = 'width: 140px !important; height: 196px !important;';
-                container.style = 'grid-template-columns: 140px minmax(0,1fr) !important;';
-                if (containerDifference > 0 && coverExpand === 'Up') {
-                  const originalY = window.scrollY;
-                  window.scrollBy({top: containerDifference, behavior: 'instant'});
-                  container.setAttribute('data-mdc-scrollpos', window.scrollY - originalY);
-                  //console.log(`[MDC] Scrolling down ${window.scrollY - originalY}, (${originalY}) to (${window.scrollY})`);
-                }
-              }
-              else {
-                cover.style.display = 'grid';
-                chapters.style.gridColumn = 'span 1 / span 1';
-              }
+              container.classList.add('mdc-cover-expand');
             };
 
             // Controls our method of showing covers.
