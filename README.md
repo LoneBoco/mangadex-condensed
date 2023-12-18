@@ -16,7 +16,7 @@ Shows/enlarges the cover image when the mouse is hovered over:
 - <small>**Title**: The manga title.</small>
 - <small>**Cover**: The manga cover.</small>
 - <small>**Never**: Never show/enlarge the cover image (MangaDex default).</small>  
-<sub>Default: Cover</sub>
+<sub>Default: Container</sub>
 
 #### Preview Cover Style
 Controls the size of the cover image.
@@ -27,9 +27,10 @@ Controls the size of the cover image.
 
 #### Cover Expands
 Controls the direction that the cover expands.
-- <small>**Up**: Expand upwards.</small>
-- <small>**Down**: Expand downwards.</small>  
-<sub>Default: Down</sub>
+- <small>**Down**: Expand downwards, inline.</small>
+- <small>**Float Up**: Expand upwards, floating above other titles.</small>
+- <small>**Float Down**: Expand downwards, floating above other titles.</small>
+<sub>Default: Float Up</sub>
 
 #### Read Chapter Style
 Controls the style of read chapters in the chapter list.

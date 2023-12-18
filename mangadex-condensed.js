@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      37
+// @version      38
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -23,7 +23,7 @@
         'label': 'Popup/Enlarge Cover When Hovered On',
         'type': 'select',
         'options': ['Container', 'Title + Cover', 'Title', 'Cover', 'Never'],
-        'default': 'Cover'
+        'default': 'Container'
       },
       'CoverStyle': {
         'label': 'Preview Cover Style',
@@ -34,8 +34,8 @@
       'CoverExpandDirection': {
         'label': 'Cover Expands',
         'type': 'select',
-        'options': ['Up', 'Down'],
-        'default': 'Down'
+        'options': ['Down', 'Float Up', 'Float Down'],
+        'default': 'Float Up'
       },
       'ReadChapterStyle': {
         'label': 'Read Chapter Style',
@@ -65,7 +65,7 @@
         const s = GM_config.frame.style;
         s.inset = '100px auto auto calc(50% - 500px/2)';
         s.width = '500px';
-        s.height = '300px';
+        s.height = '310px';
       },
       'save': function() { location.reload(); },
       'reset': function() { location.reload(); }
@@ -127,12 +127,12 @@
       c-29.941,0-54.3-24.356-54.3-54.294c0-29.947,24.359-54.311,54.3-54.311c29.944,0,54.306,24.363,54.306,54.311
       C310.303,285.947,285.941,310.303,255.997,310.303z`);
 
-    icon.classList.add('text-icon-black', 'dark:text-icon-white', 'text-false', 'icon');
+    icon.classList.add('icon', 'text-icon-contrast', 'text-undefined');
     icon.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
     icon.setAttribute('width', '24');
     icon.setAttribute('height', '24');
     icon.setAttribute('viewBox', '0 0 512 512');
-    icon.setAttribute('fill', 'black');
+    icon.setAttribute('fill', 'currentColor');
 
     config.classList.add('condensed-settings');
     config.addEventListener('click', function() { GM_config.open(); });
@@ -205,11 +205,14 @@
         #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
 
         /* Cover expansion. */
-        #__nuxt[mdcpage="follow"][mdcshowscover="true"] .chapter-feed__container.mdc-cover-expand {grid-template-columns: 140px minmax(0,1fr) !important; position: relative;}
-        #__nuxt[mdcpage="follow"][mdcshowscover="true"] .chapter-feed__container.mdc-cover-expand a.chapter-feed__cover {width: 140px !important; height: 196px !important;}
-        #__nuxt[mdcpage="follow"] .mdc-cover-expand .chapter-feed__cover {display:revert;}
-        #__nuxt[mdcpage="follow"][mdcshowscover="true"][mdccover="Hidden"] .chapter-feed__container.mdc-cover-expand {grid-template-areas: "art title" "art list" !important;}
-        #__nuxt[mdcpage="follow"][mdccoverexpand="Up"] .mdc-cover-expand .chapter-feed__cover {top: calc(53px - 196px); outline: 4px solid rgb(var(--md-accent)); position: absolute;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand {grid-template-columns: 140px minmax(0,1fr) !important; position: relative;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand a.chapter-feed__cover {width: 140px !important; height: 196px !important;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .mdc-cover-expand .chapter-feed__cover {display:revert;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccover="Hidden"] .chapter-feed__container.mdc-cover-expand {grid-template-areas: "art title" "art list" !important;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"] .mdc-cover-expand .chapter-feed__cover {outline: 4px solid rgb(var(--md-accent)); position: absolute;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"][mdcstyle="Darken Background"] .mdc-cover-expand.condensed-read .chapter-feed__cover {outline-color: rgb(var(--mdc-read-background)) !important;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Up"] .mdc-cover-expand .chapter-feed__cover {top: calc(53px - 196px);}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Down"] .mdc-cover-expand .chapter-feed__cover {top: 0px; z-index: 1;}
       `;
 
       addGlobalStyle(style);
@@ -264,14 +267,13 @@
 
         /* Identify read chapters easier. */
         /* Darken the background color. */
-        .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:rgb(var(--md-accent-50)) !important;}
+        .light #__nuxt[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-accent-50);}
+        .dark #__nuxt[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-background);}
+        #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:rgb(var(--mdc-read-background)) !important;}
+        #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:rgb(var(--mdc-read-background)) !important;}
+        #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:rgb(var(--md-read-background)) !important;}
         .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
-        .light #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:rgb(var(--md-accent-50)) !important;}
-        .light #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:rgb(var(--md-accent-50)) !important;}
-        .dark #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:rgb(var(--md-background)) !important;}
         .dark #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
-        .dark #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:rgb(var(--md-background)) !important;}
-        .dark #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:rgb(var(--md-background)) !important;}
 
         /* Gray out the chapter name. */
         .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
@@ -307,8 +309,11 @@
       nuxt.setAttribute('mdcstyle', readStyle);
       if (condenseElements) nuxt.setAttribute('mdcce', condenseElements);
       if (condenseFonts) nuxt.setAttribute('mdccf', condenseFonts);
+
       if (coverStyle !== 'Hidden' || coverStyle === 'Hidden' && ['Title + Cover', 'Container'].includes(coverMode))
-        nuxt.setAttribute('mdcshowscover', true);
+        nuxt.setAttribute('mdccoverenabled', true);
+      if (['Float Up', 'Float Down'].includes(coverExpand))
+        nuxt.setAttribute('mdccoverfloat', true);
     }
 
     function observer() {
