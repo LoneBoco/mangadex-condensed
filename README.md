@@ -16,7 +16,7 @@ Shows/enlarges the cover image when the mouse is hovered over:
 - <small>**Title**: The manga title.</small>
 - <small>**Cover**: The manga cover.</small>
 - <small>**Never**: Never show/enlarge the cover image (MangaDex default).</small>  
-<sub>Default: Container</sub>
+<sub>Default: Cover</sub>
 
 #### Preview Cover Style
 Controls the size of the cover image.
