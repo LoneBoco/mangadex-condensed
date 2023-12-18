@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      38
+// @version      39
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -209,10 +209,10 @@
         #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand a.chapter-feed__cover {width: 140px !important; height: 196px !important;}
         #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .mdc-cover-expand .chapter-feed__cover {display:revert;}
         #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccover="Hidden"] .chapter-feed__container.mdc-cover-expand {grid-template-areas: "art title" "art list" !important;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"] .mdc-cover-expand .chapter-feed__cover {outline: 4px solid rgb(var(--md-accent)); position: absolute;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"][mdcstyle="Darken Background"] .mdc-cover-expand.condensed-read .chapter-feed__cover {outline-color: rgb(var(--mdc-read-background)) !important;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Up"] .mdc-cover-expand .chapter-feed__cover {top: calc(53px - 196px);}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Down"] .mdc-cover-expand .chapter-feed__cover {top: 0px; z-index: 1;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {outline: 4px solid rgb(var(--md-accent)); position: absolute; z-index: 1;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"][mdcstyle="Darken Background"] .mdc-cover-expand.condensed-read:not(.expand) .chapter-feed__cover {outline-color: rgb(var(--mdc-read-background)) !important;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Up"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {bottom: 0px;}
+        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Down"] .mdc-cover-expand .chapter-feed__cover {top: 0px;}
       `;
 
       addGlobalStyle(style);
