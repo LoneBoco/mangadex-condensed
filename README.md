@@ -29,7 +29,7 @@ Controls the size of the cover image.
 Controls the direction that the cover expands.
 - <small>**Down**: Expand downwards, inline.</small>
 - <small>**Float Up**: Expand upwards, floating above other titles.</small>
-- <small>**Float Down**: Expand downwards, floating above other titles.</small>
+- <small>**Float Down**: Expand downwards, floating above other titles.</small>  
 <sub>Default: Float Up</sub>
 
 #### Read Chapter Style
