@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      41
+// @version      42
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -379,6 +379,8 @@
             const coverExpand = GM_config.get('CoverExpandDirection');
             let count = 0;
             let hideTimeout = 0;
+            let touchAndHold = false;
+            let touchAndHoldTimeout = null;
 
             // If we are popping the cover out, add some grace for the hide.
             if (coverStyle === 'Hidden') {
@@ -388,10 +390,11 @@
 
             const hide = function(e, t = hideTimeout) {
               console.log('[MDC] Hiding cover via ' + e.type);
+              clearTimeout(touchAndHoldTimeout);
+              touchAndHold = false;
 
               // Compact mode doesn't show the cover.  Trying to mess with it will break the page.
-              if (container.classList.contains('compact'))
-                return;
+              if (container.classList.contains('compact')) return;
 
               setTimeout(() => {
                 if (--count <= 0) {
@@ -404,18 +407,26 @@
               console.log('[MDC] Showing cover via ' + e.type);
 
               // Compact mode doesn't show the cover.  Trying to mess with it will break the page.
-              if (container.classList.contains('compact'))
-                return;
+              if (container.classList.contains('compact')) return;
 
               ++count;
               container.classList.add('mdc-cover-expand');
             };
+            const touchMove = function(e) {
+              touchAndHoldTimeout = setTimeout(() => { touchAndHold = true; console.log('[MDC] Touch and holding.'); }, 200);
+            }
+            const contextMenu = function(e) {
+              if (touchAndHold) {
+                e.preventDefault();
+                console.log('[MDC] Preventing contextmenu due to touch and hold.');
+              }
+            }
 
             // Controls our method of showing covers.
             // Mouse enters: Show the cover and move the chapters over to the next column.
             // Mouse leaves: Hide the cover and span the chapters across the whole grid row.
             if (coverStyle !== 'Full Size') {
-              const events = [['mouseenter', show], ['mouseleave', hide], ['touchstart', show], ['touchend', hide], ['touchcancel', hide]];
+              const events = [['mouseenter', show], ['mouseleave', hide], ['touchstart', show], ['touchend', hide], ['touchcancel', hide], ['touchmove', touchMove], ['contextmenu', contextMenu]];
               if (coverMode === 'Container') {
                 events.forEach((ev) => container.addEventListener(ev[0], ev[1]));
               }
