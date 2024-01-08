@@ -3,9 +3,10 @@
 Improves the MangaDex experience by giving you lots of display options.  Click the settings gear on most pages to configure the script.
 
 ## Features
-* Optional condensed or hidden cover images that can expand to full size on mouse hover.
+* Optional condensed or hidden cover images that can expand to full size on mouse hover or touch.
 * Different styles on read chapters so you can easily see them.
 * Clicking and middle clicking on chapters visibly marks them as read without a refresh.
+* Ability to force clicks/taps to open chapters in a new tab.
 * Optional adjustments to layout and font sizes / weights.
 
 ## Configurable Options

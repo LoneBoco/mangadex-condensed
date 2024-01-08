@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      40
+// @version      41
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -181,6 +181,39 @@
       ind.dispatchEvent(new MouseEvent('click'));
   }
 
+  const rebindLeftClick = function(chapter) {
+    const chapterAnchor = chapter.querySelector('a:first-child');
+    if (chapterAnchor !== null) chapterAnchor.setAttribute('target', '_blank');
+
+    // We want to prevent the chapter-grid events from firing, so make a wrapper that cancels event bubbling.
+    const chapterGrid = chapter.querySelector('.chapter-grid');
+    if (chapterGrid !== null) {
+      // Create the wrapper and move all the classes and attributes over to it so the CSS doesn't break.
+      const chapterGridWrapper = document.createElement('div');
+      chapterGridWrapper.className = chapterGrid.className;
+      for (const attr of chapterGrid.attributes) {
+        chapterGridWrapper.setAttribute(attr.name, attr.value);
+        chapterGrid.removeAttribute(attr.name);
+      }
+
+      // Give the old .chapter-grid element a new class that applies a 100% width.
+      chapterGrid.classList = 'mdc-chapter-grid-wrapper';
+
+      // Move all the children over to the new wrapper.
+      [...chapterGrid.childNodes].forEach((n) => chapterGridWrapper.appendChild(n));
+      chapterGrid.appendChild(chapterGridWrapper);
+
+      // Set new listeners on the wrapper to prevent click/mouseup events from reaching the original node.
+      // This new listener triggers the anchor via a click event so the target works.
+      chapterGridWrapper.addEventListener('click', (e) => {
+        console.log('[MDC] Intercepted click event.');
+        e.stopPropagation();
+        chapterAnchor.dispatchEvent(new MouseEvent('click'));
+      });
+      chapterGridWrapper.addEventListener('mouseup', (e) => e.stopPropagation());
+    }
+  }
+
   // Store this so when we change pages, we can disconnect it.
   let current_page_observers = [];
   let previous_pathname = '';
@@ -251,9 +284,11 @@
         #__nuxt[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title spacer groups uploader views timestamp comments" !important;}
-        #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: fit-content(100%) auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
-        #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
+        @media (min-width:48rem) {
+          #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title spacer groups uploader views timestamp comments" !important;}
+          #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: fit-content(100%) auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
+          #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
+        }
 
         /* Adjust container margin to be smaller. */
         #__nuxt[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
@@ -282,6 +317,9 @@
         /* Hide. */
         #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
         #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
+
+        /* Fix chapter grid if we wrapped it. */
+        .mdc-chapter-grid-wrapper {width: 100%;}
       `;
 
       addGlobalStyle(style);
@@ -349,6 +387,8 @@
             }
 
             const hide = function(e, t = hideTimeout) {
+              console.log('[MDC] Hiding cover via ' + e.type);
+
               // Compact mode doesn't show the cover.  Trying to mess with it will break the page.
               if (container.classList.contains('compact'))
                 return;
@@ -360,7 +400,9 @@
                 }
               }, t);
             };
-            const show = function() {
+            const show = function(e) {
+              console.log('[MDC] Showing cover via ' + e.type);
+
               // Compact mode doesn't show the cover.  Trying to mess with it will break the page.
               if (container.classList.contains('compact'))
                 return;
@@ -373,17 +415,15 @@
             // Mouse enters: Show the cover and move the chapters over to the next column.
             // Mouse leaves: Hide the cover and span the chapters across the whole grid row.
             if (coverStyle !== 'Full Size') {
+              const events = [['mouseenter', show], ['mouseleave', hide], ['touchstart', show], ['touchend', hide], ['touchcancel', hide]];
               if (coverMode === 'Container') {
-                container.addEventListener('mouseleave', hide);
-                container.addEventListener('mouseenter', show);
+                events.forEach((ev) => container.addEventListener(ev[0], ev[1]));
               }
               if (coverMode === 'Title' || coverMode == 'Title + Cover') {
-                title.addEventListener('mouseleave', hide);
-                title.addEventListener('mouseenter', show);
+                events.forEach((ev) => title.addEventListener(ev[0], ev[1]));
               }
               if (coverMode === 'Cover' || coverMode == 'Title + Cover') {
-                cover.addEventListener('mouseleave', hide);
-                cover.addEventListener('mouseenter', show);
+                events.forEach((ev) => cover.addEventListener(ev[0], ev[1]));
               }
             }
 
@@ -406,20 +446,8 @@
 
               // Alter anchor target.
               const leftClickMode = GM_config.get('LeftClickMode');
-              if (leftClickMode === 'New Window') {
-                chapter.setAttribute('target', '_blank');
-              }
-
-              // Allow middle click on the comment button.
-              /*
-              const comment = chapter.querySelector('[title*="comment"]');
-              if (comment) {
-                comment.addEventListener('auxclick', (ev) => {
-                  ev.preventDefault();
-                  comment.dispatchEvent(new MouseEvent('click'));
-                });
-              }
-              */
+              if (leftClickMode === 'New Window')
+                rebindLeftClick(chapter);
             }
 
             // Remove the alt-text on the flag.
@@ -574,9 +602,8 @@
 
           // Alter anchor target.
           const leftClickMode = GM_config.get('LeftClickMode');
-          if (leftClickMode === 'New Window') {
-            chapter.setAttribute('target', '_blank');
-          }
+          if (leftClickMode === 'New Window')
+            rebindLeftClick(chapter);
         }
       };
 
