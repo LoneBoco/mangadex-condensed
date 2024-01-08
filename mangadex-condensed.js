@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      43
+// @version      44
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -379,8 +379,7 @@
             const coverExpand = GM_config.get('CoverExpandDirection');
             let count = 0;
             let hideTimeout = 0;
-            let touchAndHold = false;
-            let touchAndHoldTimeout = null;
+            let touchAndMove = false;
 
             // If we are popping the cover out, add some grace for the hide.
             if (coverStyle === 'Hidden') {
@@ -390,8 +389,7 @@
 
             const hide = function(e, t = hideTimeout) {
               console.log('[MDC] Hiding cover via ' + e.type);
-              clearTimeout(touchAndHoldTimeout);
-              touchAndHold = false;
+              touchAndMove = false;
 
               // Compact mode doesn't show the cover.  Trying to mess with it will break the page.
               if (container.classList.contains('compact')) return;
@@ -413,10 +411,10 @@
               container.classList.add('mdc-cover-expand');
             };
             const touchMove = function(e) {
-              touchAndHoldTimeout = setTimeout(() => { touchAndHold = true; console.log('[MDC] Touch and holding.'); }, 200);
+              touchAndMove = true;
             }
             const contextMenu = function(e) {
-              if (touchAndHold) {
+              if (touchAndMove) {
                 e.preventDefault();
                 console.log('[MDC] Preventing contextmenu due to touch and hold.');
               } else {
