@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      44
+// @version      45
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -185,32 +185,18 @@
     const chapterAnchor = chapter.querySelector('a:first-child');
     if (chapterAnchor !== null) chapterAnchor.setAttribute('target', '_blank');
 
-    // We want to prevent the chapter-grid events from firing, so make a wrapper that cancels event bubbling.
+    // We want to prevent the .chapter-grid events from firing, so clone it without the events and swap it.
     const chapterGrid = chapter.querySelector('.chapter-grid');
     if (chapterGrid !== null) {
-      // Create the wrapper and move all the classes and attributes over to it so the CSS doesn't break.
-      const chapterGridWrapper = document.createElement('div');
-      chapterGridWrapper.className = chapterGrid.className;
-      for (const attr of chapterGrid.attributes) {
-        chapterGridWrapper.setAttribute(attr.name, attr.value);
-        chapterGrid.removeAttribute(attr.name);
-      }
+      // Clone the .chapter-grid node to get a version without the event listeners.
+      const chapterGridClone = chapterGrid.cloneNode(false);
 
-      // Give the old .chapter-grid element a new class that applies a 100% width.
-      chapterGrid.classList = 'mdc-chapter-grid-wrapper';
+      // Move all the children over to the clone and replace the original.
+      [...chapterGrid.childNodes].forEach((n) => chapterGridClone.appendChild(n));
+      chapterGrid.parentElement.replaceChild(chapterGridClone, chapterGrid);
 
-      // Move all the children over to the new wrapper.
-      [...chapterGrid.childNodes].forEach((n) => chapterGridWrapper.appendChild(n));
-      chapterGrid.appendChild(chapterGridWrapper);
-
-      // Set new listeners on the wrapper to prevent click/mouseup events from reaching the original node.
-      // This new listener triggers the anchor via a click event so the target works.
-      chapterGridWrapper.addEventListener('click', (e) => {
-        console.log('[MDC] Intercepted click event.');
-        e.stopPropagation();
-        chapterAnchor.dispatchEvent(new MouseEvent('click'));
-      });
-      chapterGridWrapper.addEventListener('mouseup', (e) => e.stopPropagation());
+      // Bind a new event listeners to handle click events.
+      chapterGridClone.addEventListener('click', () => chapterAnchor.dispatchEvent(new MouseEvent('click')));
     }
   }
 
@@ -286,7 +272,7 @@
         /* Alter the grid spacing to give more room for the chapter name. */
         @media (min-width:48rem) {
           #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title spacer groups uploader views timestamp comments" !important;}
-          #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: fit-content(100%) auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
+          #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: auto auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
           #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
         }
 
@@ -317,9 +303,6 @@
         /* Hide. */
         #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
         #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
-
-        /* Fix chapter grid if we wrapped it. */
-        .mdc-chapter-grid-wrapper {width: 100%;}
       `;
 
       addGlobalStyle(style);
