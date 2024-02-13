@@ -54,4 +54,4 @@ Controls if page elements are condensed.  This basically reduces whitespace.
 Controls if the font should be made smaller and less bold.  
 <sub>Default: Enabled</sub>
 
-![screenshot](./screenshots/screenshot_15.png)
+![screenshot](./screenshots/screenshot_46.png)

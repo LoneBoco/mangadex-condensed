@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      45
+// @version      46
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -462,6 +462,7 @@
       // Used to prevent spawning a bunch of setTimeouts if we have rapid mutation callbacks.
       let waiting_for_timeout = false;
 
+      // Applies "read" status to the whole manga container if every chapter under it has been read.
       const apply_read_cb = async function(mutationsList, observer) {
 
         // We disconnect our observer so the changes we make don't cause new mutations.
@@ -668,17 +669,12 @@
       }
 
       // Choose the style function to apply.
-      //debugger;
+      const follows = [/\/titles\/feed/, /\/titles\/latest/, /\/my\/history/, /\/user\//, /\/group\//];
+      const title = [/\/title\//];
       let pageFunction = undefined;
-      if (/\/titles\/feed/.test(full_location))
+      if (follows.filter((url) => url.test(full_location)).length > 0)
         pageFunction = pageFollows;
-      else if (/\/titles\/latest/.test(full_location))
-        pageFunction = pageFollows;
-      else if (/\/my\/history/.test(full_location))
-        pageFunction = pageFollows;
-      else if (/\/title\//.test(full_location))
-        pageFunction = pageTitle;
-      else if (/\/group\//.test(full_location))
+      else if (title.filter((url) => url.test(full_location)).length > 0)
         pageFunction = pageTitle;
 
       if (pageFunction !== undefined) {
