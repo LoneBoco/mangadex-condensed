@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      46
+// @version      47
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -181,23 +181,32 @@
       ind.dispatchEvent(new MouseEvent('click'));
   }
 
-  const rebindLeftClick = function(chapter) {
-    const chapterAnchor = chapter.querySelector('a:first-child');
-    if (chapterAnchor !== null) chapterAnchor.setAttribute('target', '_blank');
+  const removeElementEvents = function(elements) {
+    // Assemble the list of elements to check.
+    // JS really sucks sometimes.
+    let arr = [];
+    if (elements instanceof NodeList)
+      arr.push(...Array.from(elements));
+    else arr.push(elements || []);
 
-    // We want to prevent the .chapter-grid events from firing, so clone it without the events and swap it.
-    const chapterGrid = chapter.querySelector('.chapter-grid');
-    if (chapterGrid !== null) {
-      // Clone the .chapter-grid node to get a version without the event listeners.
-      const chapterGridClone = chapterGrid.cloneNode(false);
+    let clones = [];
+
+    arr.forEach((element) => {
+
+      // Clone the node in question.
+      const clone = element.cloneNode(false);
 
       // Move all the children over to the clone and replace the original.
-      [...chapterGrid.childNodes].forEach((n) => chapterGridClone.appendChild(n));
-      chapterGrid.parentElement.replaceChild(chapterGridClone, chapterGrid);
+      [...element.childNodes].forEach((n) => clone.appendChild(n));
+      element.replaceWith(clone);
+      clones.push(clone);
+    });
 
-      // Bind a new event listeners to handle click events.
-      chapterGridClone.addEventListener('click', () => chapterAnchor.dispatchEvent(new MouseEvent('click')));
-    }
+    return clones;
+  }
+
+  const rebindLeftClick = function(chapter) {
+    [...chapter.querySelectorAll('a')].forEach((a) => a.setAttribute('target', '_blank'));
   }
 
   // Store this so when we change pages, we can disconnect it.
@@ -434,6 +443,10 @@
             // Add functionality for each chapter.
             for (const chapter of chapters.querySelectorAll('.chapter')) {
 
+              // Remove events from the child anchor tags.
+              // These Vue events cancel the event bubble which prevents our changes from working.
+              removeElementEvents(chapter.querySelectorAll('a'));
+
               // Add event to mark the chapter as read when clicked.
               chapter.addEventListener('click', toggleRead);
               chapter.addEventListener('auxclick', toggleRead);
@@ -589,6 +602,10 @@
               chapter.parentElement.parentElement.classList.add('read');
             }
           }
+
+          // Remove events from the child anchor tags.
+          // These Vue events cancel the event bubble which prevents our changes from working.
+          removeElementEvents(chapter.querySelectorAll('a'));
 
           // Alter functionality around the chapter title.
           // Add event to mark the chapter as read when clicked.
