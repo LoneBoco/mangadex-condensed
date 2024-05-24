@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      47
+// @version      48
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -186,12 +186,12 @@
     // JS really sucks sometimes.
     let arr = [];
     if (elements instanceof NodeList)
-      arr.push(...Array.from(elements));
-    else arr.push(elements || []);
+      arr.push(Array.from(elements));
+    else arr.push([elements] || []);
 
     let clones = [];
 
-    arr.forEach((element) => {
+    arr.flat(Infinity).forEach((element) => {
 
       // Clone the node in question.
       const clone = element.cloneNode(false);
