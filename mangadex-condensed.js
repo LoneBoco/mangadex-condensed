@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      48
+// @version      49
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -447,14 +447,17 @@
               // These Vue events cancel the event bubble which prevents our changes from working.
               removeElementEvents(chapter.querySelectorAll('a'));
 
-              // Add event to mark the chapter as read when clicked.
-              chapter.addEventListener('click', toggleRead);
-              chapter.addEventListener('auxclick', toggleRead);
-
               // Alter anchor target.
               const leftClickMode = GM_config.get('LeftClickMode');
               if (leftClickMode === 'New Window')
                 rebindLeftClick(chapter);
+
+              // Add event to mark the chapter as read when clicked.
+              // MangaDex will throw an error if a page navigation happens at the same time so don't bind on click
+              // unless we re-target clicks to open in a new window.
+              chapter.addEventListener('auxclick', toggleRead);
+              if (leftClickMode === 'New Window')
+                chapter.addEventListener('click', toggleRead);
             }
 
             // Remove the alt-text on the flag.
@@ -607,15 +610,17 @@
           // These Vue events cancel the event bubble which prevents our changes from working.
           removeElementEvents(chapter.querySelectorAll('a'));
 
-          // Alter functionality around the chapter title.
-          // Add event to mark the chapter as read when clicked.
-          chapter.addEventListener('click', toggleRead);
-          chapter.addEventListener('auxclick', toggleRead);
-
           // Alter anchor target.
           const leftClickMode = GM_config.get('LeftClickMode');
           if (leftClickMode === 'New Window')
             rebindLeftClick(chapter);
+
+          // Add event to mark the chapter as read when clicked.
+          // MangaDex will throw an error if a page navigation happens at the same time so don't bind on click
+          // unless we re-target clicks to open in a new window.
+          chapter.addEventListener('auxclick', toggleRead);
+          if (leftClickMode === 'New Window')
+            chapter.addEventListener('click', toggleRead);
         }
       };
 
