@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      49
+// @version      50
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -312,6 +312,11 @@
         /* Hide. */
         #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
         #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
+
+        /* Support popup. */
+        .pe-none {pointer-events: none;}
+        .pe-auto {pointer-events: auto;}
+        .panel-width {width: var(--drawer-menu-width);}
       `;
 
       addGlobalStyle(style);
@@ -472,6 +477,7 @@
 
         if (loadedOne) {
           addConfig();
+          fixSupportPopup();
         }
       };
 
@@ -550,6 +556,21 @@
       const config = createSettingsButton(divData, svgData);
       config.classList.add('item');
       controls.append(config);
+    }
+
+    function fixSupportPopup() {
+      const supportButton = document.querySelector('button.md-btn ~ a.md-btn[href*="support-us"]');
+      if (supportButton !== null) {
+        const wrapper = supportButton.closest('.z-20')
+        const inner = wrapper.firstElementChild;
+        if (wrapper !== null && inner !== null) {
+          wrapper.classList.add('panel-width');
+          wrapper.classList.add('pe-none');
+          inner.classList.add('pe-auto');
+          return;
+        }
+      }
+      console.warn("[MDC] fixSupportPopup is no longer working.");
     }
 
     // Avoid adding tons of duplicate styles.
