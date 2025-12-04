@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      50
+// @version      51
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -558,21 +558,6 @@
       controls.append(config);
     }
 
-    function fixSupportPopup() {
-      const supportButton = document.querySelector('button.md-btn ~ a.md-btn[href*="support-us"]');
-      if (supportButton !== null) {
-        const wrapper = supportButton.closest('.z-20')
-        const inner = wrapper.firstElementChild;
-        if (wrapper !== null && inner !== null) {
-          wrapper.classList.add('panel-width');
-          wrapper.classList.add('pe-none');
-          inner.classList.add('pe-auto');
-          return;
-        }
-      }
-      console.warn("[MDC] fixSupportPopup is no longer working.");
-    }
-
     // Avoid adding tons of duplicate styles.
     if (current_page_observers.length === 0) {
       style();
@@ -606,6 +591,7 @@
 
         // Try to add our settings button.
         addConfig();
+        fixSupportPopup();
 
         const chapters = document.querySelectorAll('.chapter');
         for (const chapter of chapters) {
@@ -684,10 +670,27 @@
       style();
       observer();
       addConfig();
+      fixSupportPopup();
     }
   }
 
   ///////////////////////////////////////////////////////////////////////////////
+
+  function fixSupportPopup() {
+    //debugger;
+    const supportButton = document.querySelector('button.md-btn ~ a.md-btn[href*="support-us"]');
+    if (supportButton !== null) {
+      const wrapper = supportButton.closest('.z-20')
+      const inner = wrapper.firstElementChild;
+      if (wrapper !== null && inner !== null) {
+        wrapper.classList.add('panel-width');
+        wrapper.classList.add('pe-none');
+        inner.classList.add('pe-auto');
+        return;
+      }
+    }
+    console.warn("[MDC] fixSupportPopup is no longer working.");
+  }
 
   ///////////////////////////////////////////////////////////////////////////////
   // This is our loader.
@@ -713,7 +716,7 @@
 
       // Choose the style function to apply.
       const follows = [/\/titles\/feed/, /\/titles\/latest/, /\/my\/history/, /\/user\//, /\/group\//];
-      const title = [/\/title\//];
+      const title = [/\/title\//, /\/titles\/follows/];
       let pageFunction = undefined;
       if (follows.filter((url) => url.test(full_location)).length > 0)
         pageFunction = pageFollows;
