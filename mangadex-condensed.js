@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      51
+// @version      52
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -241,6 +241,9 @@
         #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"][mdcstyle="Darken Background"] .mdc-cover-expand.condensed-read:not(.expand) .chapter-feed__cover {outline-color: rgb(var(--mdc-read-background)) !important;}
         #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Up"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {bottom: 0px;}
         #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Down"] .mdc-cover-expand .chapter-feed__cover {top: 0px;}
+
+        /* Prevent ads from changing heights. */
+        #__nuxt[mdcpage="follow"] #placeholder {min-height: 256px;}
       `;
 
       addGlobalStyle(style);
