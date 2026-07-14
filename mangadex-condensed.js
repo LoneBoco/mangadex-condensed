@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      52
+// @version      53
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -14,6 +14,10 @@
 // ==/UserScript==
 
 (function() {
+
+  // Page root element.
+  const page_root = '#app';
+
   // Configure GM_config.
   GM_config.init(
   {
@@ -177,8 +181,10 @@
     const chapter = ev.target.closest('.chapter');
     if (chapter === null) return;
     const ind = chapter.getElementsByTagName('svg')[0];
-    if (ind !== undefined)
+    if (ind !== undefined) {
       ind.dispatchEvent(new MouseEvent('click'));
+      console.log("[MDC] Sending click event to mark chapter as read.");
+    }
   }
 
   const removeElementEvents = function(elements) {
@@ -220,30 +226,30 @@
     {
       const style = `
         /* Thin out the container padding. */
-        #__nuxt[mdcpage="follow"][mdcce="true"] .chapter-feed__container {padding: 0.25rem !important;}
+        ${page_root}[mdcpage="follow"][mdcce="true"] .chapter-feed__container {padding: 0.25rem !important;}
 
         /* Adjust the location of the cover image. */
-        #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__container {grid-template-columns: 41px minmax(0,1fr) !important;}
-        #__nuxt[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}
-        #__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container {grid-template-areas: "title title" "list list" !important;}
-        #__nuxt[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__cover {display:none;}
+        ${page_root}[mdcpage="follow"][mdccover="Small"] .chapter-feed__container {grid-template-columns: 41px minmax(0,1fr) !important;}
+        ${page_root}[mdcpage="follow"][mdccover="Small"] .chapter-feed__cover {width: 41px !important; height: 53px !important; max-height: initial !important; padding-bottom: 0px !important;}
+        ${page_root}[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__container {grid-template-areas: "title title" "list list" !important;}
+        ${page_root}[mdcpage="follow"][mdccover="Hidden"] .chapter-feed__cover {display:none;}
 
         /* Remove bolding of the chapter titles. */
         /* Adjust the font size of the title. */
-        #__nuxt[mdcpage="follow"][mdccf="true"] .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
+        ${page_root}[mdcpage="follow"][mdccf="true"] .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
 
         /* Cover expansion. */
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand {grid-template-columns: 140px minmax(0,1fr) !important; position: relative;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand a.chapter-feed__cover {width: 140px !important; height: 196px !important;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"] .mdc-cover-expand .chapter-feed__cover {display:revert;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccover="Hidden"] .chapter-feed__container.mdc-cover-expand {grid-template-areas: "art title" "art list" !important;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {outline: 4px solid rgb(var(--md-accent)); position: absolute; z-index: 1;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"][mdcstyle="Darken Background"] .mdc-cover-expand.condensed-read:not(.expand) .chapter-feed__cover {outline-color: rgb(var(--mdc-read-background)) !important;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Up"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {bottom: 0px;}
-        #__nuxt[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Down"] .mdc-cover-expand .chapter-feed__cover {top: 0px;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand {grid-template-columns: 140px minmax(0,1fr) !important; position: relative;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"] .chapter-feed__container.mdc-cover-expand a.chapter-feed__cover {width: 140px !important; height: 196px !important;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"] .mdc-cover-expand .chapter-feed__cover {display:revert;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"][mdccover="Hidden"] .chapter-feed__container.mdc-cover-expand {grid-template-areas: "art title" "art list" !important;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {outline: 4px solid rgb(var(--md-accent)); position: absolute; z-index: 1;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"][mdccoverfloat="true"][mdcstyle="Darken Background"] .mdc-cover-expand.condensed-read:not(.expand) .chapter-feed__cover {outline-color: rgb(var(--mdc-read-background)) !important;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Up"] .mdc-cover-expand:not(.expand) .chapter-feed__cover {bottom: 0px;}
+        ${page_root}[mdcpage="follow"][mdccoverenabled="true"][mdccoverexpand="Float Down"] .mdc-cover-expand .chapter-feed__cover {top: 0px;}
 
         /* Prevent ads from changing heights. */
-        #__nuxt[mdcpage="follow"] #placeholder {min-height: 256px;}
+        ${page_root}[mdcpage="follow"] #placeholder {min-height: 256px;}
       `;
 
       addGlobalStyle(style);
@@ -253,16 +259,16 @@
     {
       const style = `
         /* Remove the spacing and apply chapter line separators. */
-        #__nuxt[mdcpage="title"][mdcce="true"] .flex.flex-col.gap-2 {gap: 0rem !important;}
-        #__nuxt[mdcpage="title"][mdcce="true"] .chapter {border-bottom: 1px solid rgb(var(--md-accent-30)) !important;}
+        ${page_root}[mdcpage="title"][mdcce="true"] .flex.flex-col.gap-2 {gap: 0rem !important;}
+        ${page_root}[mdcpage="title"][mdcce="true"] .chapter {border-bottom: 1px solid rgb(var(--md-accent-30)) !important;}
 
         /* Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread. */
-        #__nuxt[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-link {font-weight: 500 !important; font-size: 0.75rem !important;}
-        #__nuxt[mdcpage="title"][mdccf="true"] .chapter.read .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
-        #__nuxt[mdcpage="title"][mdccf="true"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
+        ${page_root}[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-link {font-weight: 500 !important; font-size: 0.75rem !important;}
+        ${page_root}[mdcpage="title"][mdccf="true"] .chapter.read .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
+        ${page_root}[mdcpage="title"][mdccf="true"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
 
         /* Adjust line height of unread chapters. */
-        #__nuxt[mdcpage="title"][mdcce="true"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}
+        ${page_root}[mdcpage="title"][mdcce="true"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}
       `;
 
       addGlobalStyle(style);
@@ -277,19 +283,19 @@
         button.condensed-settings:hover::after {opacity: 0.2;}
 
         /* Adjust the font size and styling. */
-        #__nuxt[mdccf="true"] .chapter-feed__title {font-size: 0.75rem !important;}
-        #__nuxt[mdccf="true"] .chapter-grid {font-size: 0.75rem !important;}
-        #__nuxt[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
+        ${page_root}[mdccf="true"] .chapter-feed__title {font-size: 0.75rem !important;}
+        ${page_root}[mdccf="true"] .chapter-grid {font-size: 0.75rem !important;}
+        ${page_root}[mdccf="true"] .chapter-grid .font-bold {font-weight: normal !important;}
 
         /* Alter the grid spacing to give more room for the chapter name. */
         @media (min-width:48rem) {
-          #__nuxt[mdcce="true"] .chapter-grid {grid-template-areas: "title spacer groups uploader views timestamp comments" !important;}
-          #__nuxt[mdcce="true"] .chapter-grid {grid-template-columns: auto auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
-          #__nuxt[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
+          ${page_root}[mdcce="true"] .chapter-grid {grid-template-areas: "title spacer groups uploader views timestamp comments" !important;}
+          ${page_root}[mdcce="true"] .chapter-grid {grid-template-columns: auto auto fit-content(100%) fit-content(100%) min-content min-content 6ch !important;}
+          ${page_root}[mdcce="true"] .chapter-grid {padding-top: 0.15rem !important; padding-bottom: 0 !important; row-gap: 0.15rem !important;}
         }
 
         /* Adjust container margin to be smaller. */
-        #__nuxt[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
+        ${page_root}[mdcce="true"] .chapter-feed__container.mb-4 {margin-bottom: 0.5rem !important;}
 
         /* Adjust the lift color for read chapters. */
         .chapter.read .pill.lift:hover {background-color:rgb(var(--md-accent-10)) !important;}
@@ -300,21 +306,21 @@
 
         /* Identify read chapters easier. */
         /* Darken the background color. */
-        .light #__nuxt[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-accent-50);}
-        .dark #__nuxt[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-background);}
-        #__nuxt[mdcstyle="Darken Background"] .chapter.read {background-color:rgb(var(--mdc-read-background)) !important;}
-        #__nuxt[mdcstyle="Darken Background"] .condensed-read {background-color:rgb(var(--mdc-read-background)) !important;}
-        #__nuxt[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:rgb(var(--md-read-background)) !important;}
-        .light #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
-        .dark #__nuxt[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
+        .light ${page_root}[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-accent-50);}
+        .dark ${page_root}[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-background);}
+        ${page_root}[mdcstyle="Darken Background"] .chapter.read {background-color:rgb(var(--mdc-read-background)) !important;}
+        ${page_root}[mdcstyle="Darken Background"] .condensed-read {background-color:rgb(var(--mdc-read-background)) !important;}
+        ${page_root}[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:rgb(var(--md-read-background)) !important;}
+        .light ${page_root}[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
+        .dark ${page_root}[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
 
         /* Gray out the chapter name. */
-        .light #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
-        .dark  #__nuxt[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
+        .light ${page_root}[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
+        .dark  ${page_root}[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
 
         /* Hide. */
-        #__nuxt[mdcstyle="Hide"] .chapter.read {display:none !important;}
-        #__nuxt[mdcstyle="Hide"] .condensed-read {display:none !important;}
+        ${page_root}[mdcstyle="Hide"] .chapter.read {display:none !important;}
+        ${page_root}[mdcstyle="Hide"] .condensed-read {display:none !important;}
 
         /* Support popup. */
         .pe-none {pointer-events: none;}
@@ -327,8 +333,10 @@
   }
 
   ///////////////////////////////////////////////////////////////////////////////
+  // Follows
+  ///////////////////////////////////////////////////////////////////////////////
+
   function pageFollows() {
-    const container_selector = '#__nuxt';
     const config_class = 'controls';
 
     function style() {
@@ -339,19 +347,22 @@
       const condenseElements = GM_config.get('CondenseElements');
       const condenseFonts = GM_config.get('CondenseFonts');
 
-      const nuxt = document.getElementById('__nuxt');
+      const root = document.querySelector(page_root);
+      if (root === null) {
+        console.error("[MDC] Could not find page root to set follows page styles.");
+      } else {
+        root.setAttribute('mdcpage', 'follow');
+        root.setAttribute('mdccover', coverStyle);
+        root.setAttribute('mdccoverexpand', coverExpand);
+        root.setAttribute('mdcstyle', readStyle);
+        if (condenseElements) root.setAttribute('mdcce', condenseElements);
+        if (condenseFonts) root.setAttribute('mdccf', condenseFonts);
 
-      nuxt.setAttribute('mdcpage', 'follow');
-      nuxt.setAttribute('mdccover', coverStyle);
-      nuxt.setAttribute('mdccoverexpand', coverExpand);
-      nuxt.setAttribute('mdcstyle', readStyle);
-      if (condenseElements) nuxt.setAttribute('mdcce', condenseElements);
-      if (condenseFonts) nuxt.setAttribute('mdccf', condenseFonts);
-
-      if (coverStyle !== 'Hidden' || coverStyle === 'Hidden' && ['Title + Cover', 'Container'].includes(coverMode))
-        nuxt.setAttribute('mdccoverenabled', true);
-      if (['Float Up', 'Float Down'].includes(coverExpand))
-        nuxt.setAttribute('mdccoverfloat', true);
+        if (coverStyle !== 'Hidden' || coverStyle === 'Hidden' && ['Title + Cover', 'Container'].includes(coverMode))
+          root.setAttribute('mdccoverenabled', true);
+        if (['Float Up', 'Float Down'].includes(coverExpand))
+          root.setAttribute('mdccoverfloat', true);
+      }
     }
 
     function observer() {
@@ -525,7 +536,7 @@
 
               // Reconnect our observer now that we pushed changes.
               try {
-                const page_container = document.querySelector(container_selector);
+                const page_container = document.querySelector(page_root);
                 observer.observe(page_container, {attributes: true, subtree: true, attributeFilter: ['class']});
               } catch (error) {}
             }, 10);
@@ -535,7 +546,7 @@
 
       try {
         //debugger;
-        const page_container = document.querySelector(container_selector);
+        const page_container = document.querySelector(page_root);
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
 
@@ -569,8 +580,10 @@
   }
 
   ///////////////////////////////////////////////////////////////////////////////
+  // Titles
+  ///////////////////////////////////////////////////////////////////////////////
+
   function pageTitle() {
-    const container_selector = '#__nuxt';
     const config_class = '.layout-container div.sm\\:ml-2 .flex.mb-6';
     const config_class2 = '.layout-container div.sm\\:ml-2 .flex.mb-2';
 
@@ -580,13 +593,16 @@
       const condenseElements = GM_config.get('CondenseElements');
       const condenseFonts = GM_config.get('CondenseFonts');
 
-      const nuxt = document.getElementById('__nuxt');
-
-      nuxt.setAttribute('mdcpage', 'title');
-      nuxt.setAttribute('mdccover', coverStyle);
-      nuxt.setAttribute('mdcstyle', readStyle);
-      if (condenseElements) nuxt.setAttribute('mdcce', condenseElements);
-      if (condenseFonts) nuxt.setAttribute('mdccf', condenseFonts);
+      const root = document.querySelector(page_root);
+      if (root === null) {
+        console.error("[MDC] Could not find page root to set titles page styles.");
+      } else {
+        root.setAttribute('mdcpage', 'title');
+        root.setAttribute('mdccover', coverStyle);
+        root.setAttribute('mdcstyle', readStyle);
+        if (condenseElements) root.setAttribute('mdcce', condenseElements);
+        if (condenseFonts) root.setAttribute('mdccf', condenseFonts);
+      }
     }
 
     function observer() {
@@ -636,7 +652,7 @@
 
       try {
         //debugger;
-        const page_container = document.querySelector(container_selector);
+        const page_container = document.querySelector(page_root);
         const chapter_observer = new MutationObserver(apply_js_cb);
         chapter_observer.observe(page_container, {attributes: false, childList: true, subtree: true});
 
@@ -678,10 +694,12 @@
   }
 
   ///////////////////////////////////////////////////////////////////////////////
+  // Support functions
+  ///////////////////////////////////////////////////////////////////////////////
 
   function fixSupportPopup() {
     //debugger;
-    const supportButton = document.querySelector('button.md-btn ~ a.md-btn[href*="support-us"]');
+    const supportButton = document.querySelector('button.accent.custom-opacity ~ a.primary.glow');
     if (supportButton !== null) {
       const wrapper = supportButton.closest('.z-20')
       const inner = wrapper.firstElementChild;
@@ -696,9 +714,10 @@
   }
 
   ///////////////////////////////////////////////////////////////////////////////
-  // This is our loader.
+  // Bootloader
+  ///////////////////////////////////////////////////////////////////////////////
+
   //debugger;
-  const pageContentSelector = '#__nuxt';
   const bootstrap_loader = function(mutationsList, observer) {
     console.log('[MDC] Bootstrap loader.');
     observer.disconnect();
@@ -734,14 +753,19 @@
       // observer.observe(content_container, {attributes: false, childList: true, subtree: true});
     };
 
-    const content_container = document.querySelector(pageContentSelector);
+    const content_container = document.querySelector(page_root);
     const content_observer = new MutationObserver(page_transfer_loader);
-    content_observer.observe(content_container, {attributes: false, childList: true, subtree: true});
+    if (content_container === null) {
+      console.error('[MDC] Bootstrap could not find page root.');
+    } else {
+      // Observe.
+      content_observer.observe(content_container, {attributes: false, childList: true, subtree: true});
 
-    // Test for the page already being loaded.  This is a race condition that could break the observer.
-    if (content_container.hasChildNodes()) {
-      console.log('[MDC] Page loaded, jumping to page detection.');
-      page_transfer_loader([], content_observer);
+      // Test for the page already being loaded.  This is a race condition that could break the observer.
+      if (content_container.hasChildNodes()) {
+        console.log('[MDC] Page loaded, jumping to page detection.');
+        page_transfer_loader([], content_observer);
+      }
     }
   };
 
@@ -749,6 +773,7 @@
   // This will catch the main page being loaded.
   // At this point, we switch over to our page transfer loader which will detect page changes.
   window.addEventListener('load', (event) => {
+
     // Apply the styles now.  They will sit for all future pages.
     addStyles();
 
@@ -757,7 +782,7 @@
 
     // Test for the page already being loaded.  This is a race condition that could break the observer.
     //debugger;
-    const content_container = document.querySelector(pageContentSelector);
+    const content_container = document.querySelector(page_root);
     if (content_container != null && content_container.hasChildNodes()) {
       console.log('[MDC] Page loaded, jumping to bootstrap.');
       bootstrap_loader([], load_observer);
