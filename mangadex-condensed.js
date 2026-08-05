@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      55
+// @version      56
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -265,7 +265,7 @@
         /* Remove bolding of chapter titles and adjust the font size, but leave a little bolding for unread. */
         ${page_root}[mdcpage="title"][mdccf="true"] .chapter:not(.read) .chapter-link {font-weight: 500 !important; font-size: 0.75rem !important;}
         ${page_root}[mdcpage="title"][mdccf="true"] .chapter.read .chapter-link {font-weight: normal !important; font-size: 0.75rem !important;}
-        ${page_root}[mdcpage="title"][mdccf="true"] .bg-accent.rounded-sm.read .font-bold {font-weight: normal !important;}
+        ${page_root}[mdcpage="title"][mdccf="true"] .chapter-header.read .font-bold {font-weight: normal !important;}
 
         /* Adjust line height of unread chapters. */
         ${page_root}[mdcpage="title"][mdcce="true"] .chapter:not(.read) > div.chapter-grid {line-height: 1.25rem;}
@@ -305,18 +305,10 @@
         .chapter.read [title*="comment"]:hover {background-color:rgb(var(--md-accent-10));}
 
         /* Identify read chapters easier. */
-        /* Darken the background color. */
-        .light ${page_root}[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-accent-50);}
-        .dark ${page_root}[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-background);}
-        ${page_root}[mdcstyle="Darken Background"] .chapter.read {background-color:rgb(var(--mdc-read-background)) !important;}
-        ${page_root}[mdcstyle="Darken Background"] .condensed-read {background-color:rgb(var(--mdc-read-background)) !important;}
-        ${page_root}[mdcstyle="Darken Background"] .bg-accent.rounded-sm.read {background-color:rgb(var(--md-read-background)) !important;}
-        .light ${page_root}[mdcstyle="Darken Background"] .chapter.read {color:#828282 !important;}
-        .dark ${page_root}[mdcstyle="Darken Background"] .chapter.read {color:#6a6a6a !important;}
-
-        /* Gray out the chapter name. */
-        .light ${page_root}[mdcstyle="Lighten Text"] .chapter.read {color:#b9b9b9 !important;}
-        .dark  ${page_root}[mdcstyle="Lighten Text"] .chapter.read {color:#6a6a6a !important;}
+        /* Darken the background color and gray out the chapter name. */
+        .light ${page_root}[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-accent-50); --mdc-text-color: #828282;}
+        .dark ${page_root}[mdcstyle="Darken Background"] {--mdc-read-background: var(--md-background); --mdc-text-color: #6a6a6a;}
+        ${page_root}[mdcstyle="Darken Background"] :is(.chapter.read,.condensed-read,.chapter-header.read) {background-color:rgb(var(--mdc-read-background)) !important; color:var(--mdc-text-color) !important;}
 
         /* Hide. */
         ${page_root}[mdcstyle="Hide"] .chapter.read {display:none !important;}
@@ -612,25 +604,51 @@
         addConfig();
         fixSupportPopup();
 
+        const updateGroupReadStatus = (node) => {
+          const chapter_header = node.parentElement.parentElement.querySelector('.chapter-header');
+          debugger;
+          if (chapter_header !== null) {
+            // Check if every chapter is read.
+            let toggle = true;
+            const chapters = chapter_header.parentElement.querySelectorAll('.chapter');
+            for (const c of chapters) {
+              if (c !== null && !c.classList.contains('read'))
+                toggle = false;
+            }
+            chapter_header.classList.toggle('read', toggle);
+          }
+        };
+
         const chapters = document.querySelectorAll('.chapter');
         for (const chapter of chapters) {
+          let already_parsed = false;
+
           // Abort if we've already processed this chapter.
           // Our observer can get called multiple times.
           if (chapter.classList.contains('condensed-parsed'))
+            already_parsed = true;
+
+          // Additional check in case Vue wipes out the classes.
+          if (chapter.hasAttribute('condensed-parsed'))
+          {
+            chapter.classList.add('condensed-parsed');
+            already_parsed = true;
+          }
+
+          // We were already parsed, so just check if we need to update the group and abort.
+          if (already_parsed) {
+            updateGroupReadStatus(chapter);
             return;
+          }
 
           // Mark that we've processed this chapter.
           chapter.classList.add('condensed-parsed');
+          chapter.setAttribute('condensed-parsed', 'true');
 
           // Put the "read" class on chapter group titles so we can gray out the group text.
           const read = chapter.classList.contains('read');
-          if (read) {
-            // Check if we are in a group.  We can test this by going to the parent and checking if we have a sibling (the title).
-            const is_group = chapter.parentElement.previousElementSibling !== null;
-            if (is_group) {
-              chapter.parentElement.parentElement.classList.add('read');
-            }
-          }
+          if (read)
+            updateGroupReadStatus(chapter);
 
           // Remove events from the child anchor tags.
           // These Vue events cancel the event bubble which prevents our changes from working.
@@ -644,9 +662,9 @@
           // Add event to mark the chapter as read when clicked.
           // MangaDex will throw an error if a page navigation happens at the same time so don't bind on click
           // unless we re-target clicks to open in a new window.
-          chapter.addEventListener('auxclick', toggleRead);
+          chapter.addEventListener('auxclick', (ev) => { toggleRead(ev); updateGroupReadStatus(chapter); });
           if (leftClickMode === 'New Window')
-            chapter.addEventListener('click', toggleRead);
+            chapter.addEventListener('click', (ev) => { toggleRead(ev); updateGroupReadStatus(chapter); });
         }
       };
 
