@@ -2,7 +2,7 @@
 // @name         MangaDex Condensed
 // @namespace    suckerfree
 // @license      MIT
-// @version      56
+// @version      57
 // @description  Enhance MangaDex with lots of display options to make it easier to find unread chapters.
 // @author       Nalin
 // @match        https://mangadex.org/*
@@ -300,9 +300,7 @@
         /* Adjust the lift color for read chapters. */
         .chapter.read .pill.lift:hover {background-color:rgb(var(--md-accent-10)) !important;}
         .chapter.read .group-tag.lift:hover {background-color:rgb(var(--md-accent-10)) !important;}
-
-        /* Add a lift for comments. */
-        .chapter.read [title*="comment"]:hover {background-color:rgb(var(--md-accent-10));}
+        .chapter.read .comment-container.hover:hover {background-color:rgb(var(--md-accent-10)) !important;}
 
         /* Identify read chapters easier. */
         /* Darken the background color and gray out the chapter name. */
